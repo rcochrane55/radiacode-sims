@@ -1,0 +1,26 @@
+/run/numberOfThreads 16
+/run/initialize
+
+/gps/particle gamma
+/gps/energy 1460.822 keV
+/gps/ang/type iso
+
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/radius 3.4 cm
+
+#/gps/pos/type Point
+#/gps/pos/centre 0.0 0.0 -10.015 cm
+#/gps/ang/type beam2d
+#/gps/direction 0 0 1
+
+#  -> halfz = h/2 mm
+#  -> centro in 0, 0, -60+h/2 mm
+
+/gps/pos/confine marinelli
+
+/gps/pos/halfz 34 mm
+/gps/pos/centre 0. 0. 0 mm
+/analysis/setFileName rootOutput.root
+/run/beamOn 100000000
+
