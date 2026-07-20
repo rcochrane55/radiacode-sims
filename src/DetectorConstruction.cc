@@ -121,9 +121,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   auto sideReflectorSolid1 = new G4Box("SideReflector1", reflectorThickness/2, crystalSize/2, crystalSize/2);
   auto sideReflectorSolid2 = new G4Box("SideReflector2", reflectorThickness/2, crystalSize/2, crystalSize/2);
-  auto sideReflectorSolid3 = new G4Box("SideReflector3", crystalSize/2, crystalSize/2, reflectorThickness/2);
-  auto topReflectorSolid = new G4Box("TopReflector", crystalSize/2, reflectorThickness/2,crystalSize/2);
-  auto bottomReflectorSolid = new G4Box("BottomReflector", crystalSize/2, reflectorThickness/2, crystalSize/2);
+  auto sideReflectorSolid3 = new G4Box("SideReflector3", crystalSize/2,reflectorThickness/2, crystalSize/2);
+  auto topReflectorSolid = new G4Box("TopReflector", crystalSize/2,crystalSize/2, reflectorThickness/2);
+  auto bottomReflectorSolid = new G4Box("BottomReflector", crystalSize/2, crystalSize/2, reflectorThickness/2);;
 
   auto SideReflectorLV1 = new G4LogicalVolume(sideReflectorSolid1, TiO2, "SideReflectorLogical1");
   auto SideReflectorLV2 = new G4LogicalVolume(sideReflectorSolid2, TiO2, "SideReflectorLogical2");
@@ -135,9 +135,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(-offset, 0, 0), SideReflectorLV1, "SideReflector1", logicWorld, false, 0, checkOverlaps);
   new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(offset, 0, 0), SideReflectorLV2, "SideReflector2", logicWorld, false, 0, checkOverlaps);
-  new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, 0, -offset), SideReflectorLV3, "SideReflector3", logicWorld, false, 0, checkOverlaps);
-  new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, offset, 0), TopReflectorLV, "TopReflector", logicWorld, false, 0, checkOverlaps);
-  new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, -offset, 0), BottomReflectorLV, "BottomReflector", logicWorld, false, 0, checkOverlaps);
+  new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, -offset, 0), SideReflectorLV3, "SideReflector3", logicWorld, false, 0, checkOverlaps);
+  new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, 0, offset), TopReflectorLV, "TopReflector", logicWorld, false, 0, checkOverlaps);
+  new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, 0, -offset), BottomReflectorLV, "BottomReflector", logicWorld, false, 0, checkOverlaps);
 
 
   auto  white = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0)); // white
