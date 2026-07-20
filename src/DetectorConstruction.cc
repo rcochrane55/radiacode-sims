@@ -87,7 +87,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       0,                     //copy number
                       checkOverlaps);        //overlaps checking
                      
-// CsI scint
+// CsI scint assembly
 
   G4double scintLength = 1.*cm ;
   G4double scintWidth = 1.*cm ;
@@ -106,6 +106,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double reflectorThickness = 0.04*cm;
   G4double claddingThickness = 0.16*cm;
 
+// define pos, mat, solids for cladding
   G4double reflectorOuter = 1*cm + 2.0*reflectorThickness;
   G4double claddingOuter = (reflectorOuter + 2.0*claddingThickness);
 
@@ -119,6 +120,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm), claddingLV, "Cladding", logicWorld, false, 0, checkOverlaps);
 
+// define position and solids for reflector
   auto sideReflectorSolid1 = new G4Box("SideReflector1", reflectorThickness/2, crystalSize/2, crystalSize/2);
   auto sideReflectorSolid2 = new G4Box("SideReflector2", reflectorThickness/2, crystalSize/2, crystalSize/2);
   auto sideReflectorSolid3 = new G4Box("SideReflector3", crystalSize/2,reflectorThickness/2, crystalSize/2);
