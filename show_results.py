@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 
 fileName = "rootOutput.root"
 
-# recupera gli array di dati
-
 edep = []
 f = uproot.open(fileName)
 tree = f['t']

@@ -70,11 +70,14 @@ RunAction::RunAction()
   analysisManager->SetVerboseLevel(1);
   analysisManager->SetFirstHistoId(1);
   analysisManager->SetNtupleMerging(true);
-  analysisManager->CreateH1("nome","titolo", 1000, 0., 20.*keV);
+  //analysisManager->CreateH1("nome","titolo", 1000, 0., 20.*keV);
 
   analysisManager->CreateNtuple("t", "Edep");
   analysisManager->CreateNtupleDColumn("RawEdep");
   analysisManager->CreateNtupleDColumn("SmearedEdep");
+  analysisManager ->CreateNtupleDColumn("FirstX");
+  analysisManager ->CreateNtupleDColumn("FirstY");
+  analysisManager ->CreateNtupleDColumn("FirstZ");
   analysisManager->FinishNtuple(0);
 }
 

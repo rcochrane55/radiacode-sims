@@ -58,6 +58,12 @@ void EventAction::BeginOfEventAction(const G4Event*)
 {    
   fRawEdep = 0.;
   fSmearedEdep = 0.;
+
+  fFirstInteractionRecorded = false;
+
+  fFirstX = 0.;
+  fFirstY = 0.;
+  fFirstZ = 0.;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -106,6 +112,9 @@ void EventAction::EndOfEventAction(const G4Event*)
 
     analysisManager->FillNtupleDColumn(0, fRawEdep);
     analysisManager->FillNtupleDColumn(1, fSmearedEdep);
+    analysisManager ->FillNtupleDColumn(2, fFirstX);
+    analysisManager ->FillNtupleDColumn(3, fFirstY);
+    analysisManager ->FillNtupleDColumn(4, fFirstZ);
 
     analysisManager->AddNtupleRow();
   }

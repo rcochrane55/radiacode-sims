@@ -83,6 +83,11 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   G4double edepStep = step->GetTotalEnergyDeposit();
 
 fEventAction->AddEdep(edepStep);
+
+if (edepStep > 0.)
+{
+  fEventAction->RecordFirstInteraction(step->GetPostStepPoint()->GetPosition());
+}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
