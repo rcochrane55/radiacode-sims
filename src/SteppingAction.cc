@@ -86,7 +86,8 @@ fEventAction->AddEdep(edepStep);
 
 if (edepStep > 0.)
 {
-  fEventAction->RecordFirstInteraction(step->GetPostStepPoint()->GetPosition());
+  G4ThreeVector midPos = 0.5*(step->GetPreStepPoint()->GetPosition() + step->GetPostStepPoint()->GetPosition());
+  fEventAction->RecordFirstInteraction(midPos);
 }
 }
 

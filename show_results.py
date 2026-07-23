@@ -10,6 +10,9 @@ tree = f['t']
 print(tree.keys())
 e  = f['t']['SmearedEdep'].array()
 e = f["t"]["SmearedEdep"].array(library="np") * 1000.0  # convert to numpy array
+x = f["t"]["FirstX"].array(library="np")
+y = f["t"]["FirstY"].array(library="np")
+z = f["t"]["FirstZ"].array(library="np")
 # escludi quando gli ene dep == 0 (gamma uscito da NaI)
 edep.append(e[e>0])
 
@@ -60,6 +63,9 @@ plt.xlabel('Energy [keV]')
 plt.legend(loc='upper left')
 plt.show()
 
+plt.hist(y, bins=50)
+plt.xlabel("First Interaction Y Position [mm]")
+plt.show()
 # plot peak fit
 #plt.figure(figsize=(8,5))
 
