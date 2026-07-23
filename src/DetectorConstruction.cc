@@ -101,8 +101,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   TiO2->AddElement(O, 2);
 
   G4double crystalSize = 1.0*cm;
-  G4double deadLayer = 0.03*cm;
-  G4double activeSide = crystalSize - 2*deadLayer;
+//  G4double deadLayer = 0.03*cm;
+//  G4double activeSide = crystalSize - 2*deadLayer;
   G4double reflectorThickness = 0.04*cm;
   G4double claddingThickness = 0.16*cm;
 
@@ -166,8 +166,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
       "scint"     // name
     ) ;
 
-  auto activeSolid = new G4Box("Active", activeSide/2, activeSide/2, activeSide/2);
-  auto activeLV = new G4LogicalVolume(activeSolid, scintMat, "ActiveLV");
+  //auto activeSolid = new G4Box("Active", activeSide/2, activeSide/2, activeSide/2);
+  //auto activeLV = new G4LogicalVolume(activeSolid, scintMat, "ActiveLV");
 
   new G4PVPlacement(0,                       //no rotation
                     G4ThreeVector(0,0,-0.12*cm),                    //at position
@@ -178,7 +178,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                     0,                       //copy number
                     checkOverlaps);          //overlaps checking
 
-  new G4PVPlacement(0, G4ThreeVector(), activeLV, "Active", scintLV, false, 0, checkOverlaps);
+  //new G4PVPlacement(0, G4ThreeVector(), activeLV, "Active", scintLV, false, 0, checkOverlaps);
 
 // Marinelli
 
@@ -299,7 +299,7 @@ new G4PVPlacement(0,                       //no rotation
 
   // Set scint as scoring volume
   //
-  fScoringVolume = activeLV;
+  fScoringVolume = scintLV;
 
   //
   //always return the physical World

@@ -108,7 +108,7 @@ void EventAction::EndOfEventAction(const G4Event*)
   
   // filling ntuple only when there IS an energy deposit
   if (fSmearedEdep > 0) {
-    analysisManager->FillH1(1, fSmearedEdep);
+    //analysisManager->FillH1(1, fSmearedEdep);
 
     analysisManager->FillNtupleDColumn(0, fRawEdep);
     analysisManager->FillNtupleDColumn(1, fSmearedEdep);
