@@ -101,8 +101,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   TiO2->AddElement(O, 2);
 
   G4double crystalSize = 1.0*cm;
-  G4double deadLayer = 0.046*cm;
-  G4double activeSide = crystalSize - 2*deadLayer;
+  G4double siPMSide = 0.6*cm;
+  G4double siPMThickness = 0.04*cm;
+  //G4double deadLayer = 0.046*cm;
+  //G4double activeSide = crystalSize - 2*deadLayer;
   G4double reflectorThickness = 0.04*cm;
   G4double claddingThickness = 0.16*cm;
 
@@ -133,6 +135,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   auto TopReflectorLV = new G4LogicalVolume(topReflectorSolid, TiO2, "TopReflectorLogical");
   auto BottomReflectorLV = new G4LogicalVolume(bottomReflectorSolid, TiO2, "BottomReflectorLogical");
 
+  auto SiPMSolid = new G4Box("SiPM", siPMSide/2, siPMThickness/2,siPMSide/2);
+  auto SiPMLV = new G4LogicalVolume(SiPMSolid, nist->FindOrBuildMaterial("G4_Si"), "SiPMLV");
+
   G4double offset = crystalSize/2 + reflectorThickness/2;
 
   new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(-offset, 0, 0), SideReflectorLV1, "SideReflector1", logicWorld, false, 0, checkOverlaps);
@@ -140,7 +145,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, -offset, 0), SideReflectorLV3, "SideReflector3", logicWorld, false, 0, checkOverlaps);
   new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, 0, offset), TopReflectorLV, "TopReflector", logicWorld, false, 0, checkOverlaps);
   new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, 0, -offset), BottomReflectorLV, "BottomReflector", logicWorld, false, 0, checkOverlaps);
-
+  new G4PVPlacement(nullptr, G4ThreeVector(0,0,-0.12*cm) + G4ThreeVector(0, offset, 0), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
 
   auto  white = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0)); // white
   SideReflectorLV1->SetVisAttributes(white);
@@ -166,8 +171,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
       "scint"     // name
     ) ;
 
-  auto activeSolid = new G4Box("Active", activeSide/2, activeSide/2, activeSide/2);
-  auto activeLV = new G4LogicalVolume(activeSolid, scintMat, "ActiveLV");
+  //auto activeSolid = new G4Box("Active", activeSide/2, activeSide/2, activeSide/2);
+  //auto activeLV = new G4LogicalVolume(activeSolid, scintMat, "ActiveLV");
 
   new G4PVPlacement(0,                       //no rotation
                     G4ThreeVector(0,0,-0.12*cm),                    //at position
@@ -178,7 +183,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                     0,                       //copy number
                     checkOverlaps);          //overlaps checking
 
-  new G4PVPlacement(0, G4ThreeVector(), activeLV, "Active", scintLV, false, 0, checkOverlaps);
+  //new G4PVPlacement(0, G4ThreeVector(), activeLV, "Active", scintLV, false, 0, checkOverlaps);
 
 // Marinelli
 
@@ -299,7 +304,7 @@ new G4PVPlacement(0,                       //no rotation
 
   // Set scint as scoring volume
   //
-  fScoringVolume = activeLV;
+  fScoringVolume = scintLV;
 
   //
   //always return the physical World

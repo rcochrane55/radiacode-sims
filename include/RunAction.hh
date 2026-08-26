@@ -30,9 +30,11 @@
 #ifndef RunAction_h
 #define RunAction_h 1
 
+#include <vector>
 #include "G4UserRunAction.hh"
 #include "G4Accumulable.hh"
 #include "globals.hh"
+#include "G4ThreeVector.hh"
 
 class G4Run;
 
@@ -51,12 +53,18 @@ class RunAction : public G4UserRunAction
     // virtual G4Run* GenerateRun();
     virtual void BeginOfRunAction(const G4Run*);
     virtual void EndOfRunAction(const G4Run*);
+    void AddStep(G4double edep, const G4ThreeVector& pos);
+    void ClearSteps();
 
     void AddEdep (G4double edep); 
 
   private:
     G4Accumulable<G4double> fEdep;
     G4Accumulable<G4double> fEdep2;
+    std::vector<G4double> fStepEnergy;
+    std::vector<G4double> fStepX;
+    std::vector<G4double> fStepY;
+    std::vector<G4double> fStepZ;
 };
 
 #endif

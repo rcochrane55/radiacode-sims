@@ -43,8 +43,8 @@
 EventAction::EventAction(RunAction* runAction)
 : G4UserEventAction(),
   fRunAction(runAction),
-  fRawEdep(0.),
-  fSmearedEdep(0.)
+  fRawEdep(0.)
+  // fSmearedEdep(0.)
 {} 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -54,16 +54,24 @@ EventAction::~EventAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void EventAction::AddStep(G4double edep, const G4ThreeVector& pos)
+{
+  fRawEdep += edep;
+  fRunAction->AddStep(edep, pos);
+}
+
 void EventAction::BeginOfEventAction(const G4Event*)
 {    
   fRawEdep = 0.;
-  fSmearedEdep = 0.;
+  //fSmearedEdep = 0.;
+
+  fRunAction->ClearSteps();
 
   fFirstInteractionRecorded = false;
 
-  fFirstX = 0.;
-  fFirstY = 0.;
-  fFirstZ = 0.;
+  // fFirstX = 0.;
+  // fFirstY = 0.;
+  // fFirstZ = 0.;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -92,10 +100,10 @@ void EventAction::EndOfEventAction(const G4Event*)
   G4double fwhm = std::sqrt(fwhm2);
   G4double sigma = fwhm/2.35;
 
-  fSmearedEdep = G4RandGauss::shoot(E,sigma) * keV;  // % energy resolution
+  // fSmearedEdep = G4RandGauss::shoot(E,sigma) * keV;  // % energy resolution
 
-  if (fSmearedEdep < 0.)
-    fSmearedEdep = 0.;
+  // if (fSmearedEdep < 0.)
+    // fSmearedEdep = 0.;
 
 //  G4cout << "Raw = " << fRawEdep/keV
 //         << " keV,  Smeared = " << fSmearedEdep/keV
@@ -103,20 +111,19 @@ void EventAction::EndOfEventAction(const G4Event*)
 
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
-  if (fSmearedEdep < 1.0*keV)
-    return;
+  //if (fSmearedEdep < 1.0*keV)
+  //  return;
   
   // filling ntuple only when there IS an energy deposit
-  if (fSmearedEdep > 0) {
+  // if (fSmearedEdep > 0) {
     //analysisManager->FillH1(1, fSmearedEdep);
 
-    analysisManager->FillNtupleDColumn(0, fRawEdep);
-    analysisManager->FillNtupleDColumn(1, fSmearedEdep);
-    analysisManager ->FillNtupleDColumn(2, fFirstX);
-    analysisManager ->FillNtupleDColumn(3, fFirstY);
-    analysisManager ->FillNtupleDColumn(4, fFirstZ);
+  analysisManager->FillNtupleDColumn(0, fRawEdep);
+  // analysisManager->FillNtupleDColumn(1, fStepEnergy);
+  // analysisManager->FillNtupleDColumn(1, fSmearedEdep);
+  // analysisManager ->FillNtupleDColumn(2, fStepX);
+  // analysisManager ->FillNtupleDColumn(3, fStepY);
+  // analysisManager ->FillNtupleDColumn(4, fStepZ);
 
-    analysisManager->AddNtupleRow();
+  analysisManager->AddNtupleRow();
   }
-
-}

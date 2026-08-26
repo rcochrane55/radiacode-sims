@@ -38,20 +38,14 @@
 #include "G4RunManager.hh"
 #include "G4LogicalVolume.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 SteppingAction::SteppingAction(EventAction* eventAction)
 : G4UserSteppingAction(),
   fEventAction(eventAction),
   fScoringVolume(0)
 {}
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 SteppingAction::~SteppingAction()
 {}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void SteppingAction::UserSteppingAction(const G4Step* step)
 {
@@ -80,16 +74,17 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   if (volume != fScoringVolume) return;
 
   // collect energy deposited in this step
+
+  // G4double edepStep = step->GetTotalEnergyDeposit();
   G4double edepStep = step->GetTotalEnergyDeposit();
 
-fEventAction->AddEdep(edepStep);
+// fEventAction->AddEdep(edepStep);
 
 if (edepStep > 0.)
 {
-  G4ThreeVector midPos = 0.5*(step->GetPreStepPoint()->GetPosition() + step->GetPostStepPoint()->GetPosition());
-  fEventAction->RecordFirstInteraction(midPos);
-}
+   G4ThreeVector midPos = 0.5*(step->GetPreStepPoint()->GetPosition() + step->GetPostStepPoint()->GetPosition());
+   fEventAction->AddStep(edepStep, midPos);
+ }
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

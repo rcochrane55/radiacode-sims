@@ -70,14 +70,14 @@ RunAction::RunAction()
   analysisManager->SetVerboseLevel(1);
   analysisManager->SetFirstHistoId(1);
   analysisManager->SetNtupleMerging(true);
-  //analysisManager->CreateH1("nome","titolo", 1000, 0., 20.*keV);
+  analysisManager->CreateH1("name","title", 1000, 0., 20.*keV);
 
   analysisManager->CreateNtuple("t", "Edep");
   analysisManager->CreateNtupleDColumn("RawEdep");
-  analysisManager->CreateNtupleDColumn("SmearedEdep");
-  analysisManager ->CreateNtupleDColumn("FirstX");
-  analysisManager ->CreateNtupleDColumn("FirstY");
-  analysisManager ->CreateNtupleDColumn("FirstZ");
+  analysisManager->CreateNtupleDColumn("fStepEnergy", fStepEnergy);
+  analysisManager ->CreateNtupleDColumn("fStepX", fStepX);
+  analysisManager ->CreateNtupleDColumn("fStepY", fStepY);
+  analysisManager ->CreateNtupleDColumn("fStepZ", fStepZ);
   analysisManager->FinishNtuple(0);
 }
 
@@ -102,6 +102,22 @@ void RunAction::BeginOfRunAction(const G4Run*)
   
   analysisManager->OpenFile(fileName);
 
+}
+
+void RunAction::AddStep(G4double edep, const G4ThreeVector& pos)
+{
+  fStepEnergy.push_back(edep);
+  fStepX.push_back(pos.x());
+  fStepY.push_back(pos.y());
+  fStepZ.push_back(pos.z());
+}
+
+void RunAction::ClearSteps()
+{
+  fStepEnergy.clear();
+  fStepX.clear();
+  fStepY.clear();
+  fStepZ.clear();
 }
 
 void RunAction::EndOfRunAction(const G4Run* run)

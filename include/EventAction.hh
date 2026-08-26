@@ -59,28 +59,33 @@ class EventAction : public G4UserEventAction
       return fRawEdep;
     }
 
-    G4double GetSmearedEdep() const
-    {
-      return fSmearedEdep;
-    }
+    // G4double GetSmearedEdep() const
+    // {
+    //   return fSmearedEdep;
+    // }
 
-    void RecordFirstInteraction(const G4ThreeVector& pos)
-    {
-      if (!fFirstInteractionRecorded) {
-        fFirstX = pos.x();
-        fFirstY = pos.y();
-        fFirstZ = pos.z();
-        fFirstInteractionRecorded = true;
-      }
-    }
+    // void RecordFirstInteraction(const G4ThreeVector& pos)
+    // {
+    //  if (!fFirstInteractionRecorded) {
+    //    fFirstX = pos.x();
+    //    fFirstY = pos.y();
+    //    fFirstZ = pos.z();
+    //    fFirstInteractionRecorded = true;
+    //  }
+    // }
+    void AddStep(G4double edep, const G4ThreeVector& pos);
 
   private:
     RunAction* fRunAction;
     G4double     fRawEdep;
-    G4double     fSmearedEdep;
-    G4double fFirstX;
-    G4double fFirstY;
-    G4double fFirstZ;
+    //std::vector<G4double> fStepEnergy;
+    // G4double     fSmearedEdep;
+    //std::vector<G4double> fStepX;
+    //std::vector<G4double> fStepY;
+    //std::vector<G4double> fStepZ;
+    // G4double fFirstX;
+    // G4double fFirstY;
+    // G4double fFirstZ;
     G4bool fFirstInteractionRecorded;
 };
 
