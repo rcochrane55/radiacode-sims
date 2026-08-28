@@ -2,6 +2,7 @@ import uproot
 import awkward as ak
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 file = uproot.open("rootOutput.root")
 tree = file["t"]
@@ -43,7 +44,7 @@ a = 0.0108
 
 weight = np.exp(-a * distance)
 
-weighted_energy = ak.sum(stepE * weight, axis=1)
+weighted_energy = ak.sum(1.074 * stepE * weight, axis=1)
 
 weighted_energy = ak.to_numpy(weighted_energy) * 1000
 
@@ -83,14 +84,74 @@ print("mean:", np.mean(smeared))
 print("nonzero:", np.count_nonzero(smeared))
 print("finite:", np.count_nonzero(np.isfinite(smeared)))
 
+def gaussian_linear_bkg(x, A, mu, sigma, m, b):
+    return A * np.exp(-(x - mu) ** 2 / (2 * sigma ** 2)) + m * x + b
+
+
+def fit_peak(energies):
+    hist, edges = np.histogram(energies, bins=120, range=(1350, 1575))
+    centers = (edges[:-1] + edges[1:]) / 2
+    bin_width = edges[1] - edges[0]
+
+    a_0 = hist.max()
+    mu_0 = 1460.8
+    sigma_0 = 30
+    m_0 = 0
+    b_0 = hist.min()
+    p_0 = [a_0, mu_0, sigma_0, m_0, b_0]
+
+    params, covariance = curve_fit(
+        gaussian_linear_bkg,
+        centers,
+        hist,
+        p0=p_0,
+        bounds=(
+            [0, 1400, 0.1, -np.inf, -np.inf],
+            [np.inf, 1525, 100, np.inf, np.inf],
+        ),
+    )
+
+    A, mu, sigma, m, b = params
+    peak_area = A * sigma * np.sqrt(2 * np.pi) / bin_width
+
+    return peak_area, params, hist, edges, centers
+
+peak_area, params, peak_hist, peak_edges, peak_centers = fit_peak(
+    smeared[smeared > 0]
+)
+A, mu, sigma, m, b = params
+
+print("\n1460.8 keV PEAK FIT")
+print(f"Fitted centroid: {mu:.2f} keV")
+print(f"Fitted sigma:    {sigma:.2f} keV")
+print(f"Peak area:       {peak_area:.1f} counts")
+
 plt.figure(figsize=(10, 6))
-#plt.hist(raw[raw > 0], bins=3000, range=(0, 3000), histtype='step', label='Raw Energy')
 
-plt.hist(weighted_energy[weighted_energy > 1], bins=1024, range=(0, 3000), histtype='step', label='Weighted Energy')
+plt.hist(
+    smeared[smeared > 1],
+    bins=1024,
+    range=(0, 3000),
+    histtype="step",
+    label="Weighted + Smeared Energy",
+)
 
-plt.hist(smeared[smeared > 1], bins=1024, range=(0, 3000), histtype='step', label='Weighted + Smeared Energy')
-plt.xlabel('Energy (keV)')
-plt.ylabel('Counts')
+fit_x = np.linspace(1350, 1575, 1000)
+fit_y = gaussian_linear_bkg(fit_x, *params)
+
+# Scale fitted counts/bin to match the wide-spectrum histogram bin width.
+wide_bin_width = 3000 / 1024
+fit_y_scaled = fit_y * wide_bin_width / (peak_edges[1] - peak_edges[0])
+
+plt.plot(
+    fit_x,
+    fit_y_scaled,
+    color="red",
+    label=f"1460.8 keV fit (area = {peak_area:.0f})",
+)
+
+plt.xlabel("Energy (keV)")
+plt.ylabel("Counts")
 plt.legend()
 plt.show()
 """
@@ -113,32 +174,4 @@ print("\nFirst non-zero events:")
     print("fStepZ:", stepZ[i]) 
 """
 
-# ============================== csv
-
-bins = 1024
-energy_min = 0
-energy_max = 3000
-
-counts, edges = np.histogram(
-    smeared[smeared > 1],
-    bins=bins,
-    range=(energy_min, energy_max)
-)
-
-# Energy at the center of each bin
-energy = (edges[:-1] + edges[1:]) / 2
-
-# Export directory
-output_path = r"C:\Geant4\geant4-v11.4.2\radiacode-sims-dzydition\Release\spectrum_interspec.csv"
-
-# Save Energy (keV) and Counts
-np.savetxt(
-    output_path,
-    np.column_stack((energy, counts)),
-    delimiter=",",
-    header="Energy_keV,Counts",
-    comments=""
-)
-
-print("\nCSV exported successfully:")
-print(output_path)
+# Works 5 hours after - dzybba
