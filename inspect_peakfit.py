@@ -118,7 +118,7 @@ print("energies:", centers[peaks])
 
 #the following code HAS NOT BEEN TESTED YET
 #because I'm committing this from my phone lol
-peak_mask = (centers[peaks] > 1261) & (centers[peaks] < 1661)
+peak_mask = ((centers[peaks] > 1261) & (centers[peaks] < 1661))
 
 #shifted K-40 centroid
 k40_peak = peaks[peak_mask][0]
@@ -128,6 +128,8 @@ peak_energy = centers[k40_peak]
 print("K-40 centroid, uncorrected:", peak_energy)
 
 cal_factor = 1460.8/peak_energy
+
+print("recalibration factor:", cal_factor)
 
 #new calibrated energies and histogram
 calibrated_energies = smeared[smeared > 0] * cal_factor
@@ -139,5 +141,9 @@ calibrated_peaks, properties = find_peaks(calibrated_hist, prominence=np.max(cal
 
 print("calibrated indices:", calibrated_peaks)
 print("calibrated energies:", centers[calibrated_peaks])
+
+cal_peak_mask = ((centers[calibrated_peaks] > 1400) & (centers[calibrated_peaks] < 1500))
+
+print("K-40 centroid, calibrated:", centers[calibrated_peaks][cal_peak_mask])
 
 
