@@ -103,6 +103,7 @@ print("\nFirst non-zero events:")
     print("fStepY:", stepY[i])
     print("fStepZ:", stepZ[i]) 
 """
+#histogram of weighted smeared energies, not yet calibrated
 hist, edges = np.histogram(
     smeared[smeared > 0],
     bins=1024,
@@ -110,6 +111,33 @@ hist, edges = np.histogram(
 )
 
 centers = (edges[:-1] + edges[1:]) / 2
+#identified peaks before recalibration
 peaks, properties = find_peaks(hist, prominence=np.max(hist) * 0.1)
 print("indices:", peaks)
 print("energies:", centers[peaks])
+
+#the following code HAS NOT BEEN TESTED YET
+#because I'm committing this from my phone lol
+peak_mask = (centers[peaks] > 1261) & (centers[peaks] < 1661)
+
+#shifted K-40 centroid
+k40_peak = peaks[peak_mask][0]
+
+peak_energy = centers[k40_peak]
+
+print("K-40 centroid, uncorrected:", peak_energy)
+
+cal_factor = 1460.8/peak_energy
+
+#new calibrated energies and histogram
+calibrated_energies = smeared[smeared > 0] * cal_factor
+calibrated_hist, edges = np.histogram(calibrated_energies, bins=1024, range=(0,3000))
+centers = (edges[:-1] + edges[1:]) / 2
+
+#search again for recalibrated peaks
+calibrated_peaks, properties = find_peaks(calibrated_hist, prominence=np.max(calibrated_hist) * 0.1)
+
+print("calibrated indices:", calibrated_peaks)
+print("calibrated energies:", centers[calibrated_peaks])
+
+
