@@ -210,6 +210,9 @@ print("Calibrated K-40 centroid:", cal_k40_centroid, "keV")
 #calculate peak area by ROI integration
 roi = ((centers > cal_k40_centroid - k40_fwhm[0]) & (centers < cal_k40_centroid + k40_fwhm[0]))
 
+roi_lower = cal_k40_centroid - k40_fwhm[0]
+roi_upper = cal_k40_centroid + k40_fwhm[0]
+
 peak_area = np.sum(calibrated_hist[roi])
 
 print("Peak area:", peak_area)
@@ -225,6 +228,7 @@ plt.hist(
     histtype="step",
     label="Weighted + Smeared + Calibrated Energy",
 )
+plt.axvspan(roi_lower, roi_upper, color="orange", alpha=0.3, label="Peak ROI")
 #plt.yscale("log")
 plt.legend()
 plt.xlabel("Energy (keV)")
