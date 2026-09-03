@@ -78,12 +78,14 @@ print("max:", np.max(weighted_energy))
 print("mean:", np.mean(weighted_energy))
 print("nonzero:", np.count_nonzero(weighted_energy))
 
+"""
 print("\nSMEARED")
 print("min:", np.min(smeared))
 print("max:", np.max(smeared))
 print("mean:", np.mean(smeared))
 print("nonzero:", np.count_nonzero(smeared))
 print("finite:", np.count_nonzero(np.isfinite(smeared)))
+"""
 
 """
 stepE = tree["fStepEnergy"].array()
@@ -146,7 +148,7 @@ print("Unsmeared FWHM lower bound:", k40_lower_energy[0], "keV")
 print("Unsmeared FWHM upper bound:", k40_upper_energy[0], "keV")
 
 #calculate centroid
-centroid_window = ((centers > peak_energy - (2*weighted_k40_fwhm[0])) & (centers < peak_energy + (2*weighted_k40_fwhm[0])))
+centroid_window = ((centers > peak_energy - (0.5*weighted_k40_fwhm[0])) & (centers < peak_energy + (0.5*weighted_k40_fwhm[0])))
 
 centroid = np.average(centers[centroid_window], weights=hist[centroid_window])
 
@@ -176,6 +178,7 @@ print("calibrated energies:", centers[calibrated_peaks])
 
 cal_peak_mask = ((centers[calibrated_peaks] > 1400) & (centers[calibrated_peaks] < 1500))
 
+print("Calibrated modes:", centers[calibrated_peaks])
 cal_k40_peak = centers[calibrated_peaks[cal_peak_mask]][0]
 
 print("K-40 mode, calibrated:", cal_k40_peak)
@@ -199,7 +202,7 @@ print("FWHM upper bound:", k40_right_energy[0], "keV")
 #print("FWHM %:", (k40_fwhm[0] / cal_k40_peak) * 100, "%")
 
 #calibrated smeared centroid
-cal_centroid_window = ((centers > cal_k40_peak - (2*k40_fwhm[0])) & (centers < cal_k40_peak + (2*k40_fwhm[0])))
+cal_centroid_window = ((centers > cal_k40_peak - (0.5*k40_fwhm[0])) & (centers < cal_k40_peak + (0.5*k40_fwhm[0])))
 cal_k40_centroid = np.average(centers[cal_centroid_window], weights=calibrated_hist[cal_centroid_window])
 
 print("Calibrated K-40 centroid:", cal_k40_centroid, "keV")
