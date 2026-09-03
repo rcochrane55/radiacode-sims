@@ -199,7 +199,7 @@ print("FWHM upper bound:", k40_right_energy[0], "keV")
 #print("FWHM %:", (k40_fwhm[0] / cal_k40_peak) * 100, "%")
 
 #calibrated smeared centroid
-cal_centroid_window = ((centers > cal_k40_peak - k40_fwhm[0]) & (centers < cal_k40_peak + k40_fwhm[0]))
+cal_centroid_window = ((centers > cal_k40_peak - (2*k40_fwhm[0])) & (centers < cal_k40_peak + (2*k40_fwhm[0])))
 cal_k40_centroid = np.average(centers[cal_centroid_window], weights=calibrated_hist[cal_centroid_window])
 
 print("Calibrated K-40 centroid:", cal_k40_centroid, "keV")
