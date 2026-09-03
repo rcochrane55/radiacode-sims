@@ -2,9 +2,9 @@ import uproot
 import awkward as ak
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from scipy.signal import find_peaks 
-from scipy.signal import peak_widths
+#from scipy.optimize import curve_fit
+from scipy.signal import find_peaks, peak_widths
+
 
 file = uproot.open("rootOutput.root")
 tree = file["t"]
@@ -17,10 +17,10 @@ stepX = tree["fStepX"].array()
 stepY = tree["fStepY"].array()
 stepZ = tree["fStepZ"].array()
 
-print(stepE[0])
-print(stepX[0])
-print(stepY[0])
-print(stepZ[0])
+#print(stepE[0])
+#print(stepX[0])
+#print(stepY[0])
+#print(stepZ[0])
 
 step_sum = ak.sum(stepE, axis=1) * 1000
 
@@ -49,9 +49,9 @@ weighted_energy = ak.sum(stepE * weight, axis=1)
 weighted_energy = ak.to_numpy(weighted_energy) * 1000
 
 def smear_energy(E):
-    a = -391.425599
-    b = 6.723136106
-    c = -0.000543789
+    a = -1252.39
+    b = 8.390725
+    c = -0.00205
 
     fwhm2 = a + (b*E) + (c*(E**2))
     fwhm2 = np.maximum(fwhm2, 0.1)  # Ensure non-negative values
@@ -59,6 +59,7 @@ def smear_energy(E):
 
     return np.random.normal(E, sigma)
 
+#np.random.seed(12345)
 smeared = np.zeros_like(weighted_energy)
 
 mask = weighted_energy > 0
@@ -113,19 +114,19 @@ hist, edges = np.histogram(
 centers = (edges[:-1] + edges[1:]) / 2
 #identified peaks before recalibration
 peaks, properties = find_peaks(hist, prominence=np.max(hist) * 0.1)
-print("indices:", peaks)
-print("energies:", centers[peaks])
+print("Indices:", peaks)
+print("Energies:", centers[peaks])
 
-#the following code HAS NOT BEEN TESTED YET
-#because I'm committing this from my phone lol
 peak_mask = ((centers[peaks] > 1261) & (centers[peaks] < 1661))
 
+k40_candidates = peaks[peak_mask]
+
 #shifted K-40 centroid
-k40_peak = peaks[peak_mask][0]
+k40_peak = k40_candidates[np.argmax(hist[k40_candidates])]
 
 peak_energy = centers[k40_peak]
 
-print("K-40 centroid, uncorrected:", peak_energy)
+print("K-40 mode, uncorrected:", peak_energy)
 
 cal_factor = 1460.8/peak_energy
 
@@ -144,6 +145,37 @@ print("calibrated energies:", centers[calibrated_peaks])
 
 cal_peak_mask = ((centers[calibrated_peaks] > 1400) & (centers[calibrated_peaks] < 1500))
 
-print("K-40 centroid, calibrated:", centers[calibrated_peaks][cal_peak_mask])
+cal_k40_peak = centers[calibrated_peaks[cal_peak_mask]][0]
 
+print("K-40 mode, calibrated:", cal_k40_peak)
 
+widths, width_heights, left_ips, right_ips = peak_widths(calibrated_hist, calibrated_peaks, rel_height=0.5)
+
+k40_widths = widths[cal_peak_mask]
+k40_left_ips = left_ips[cal_peak_mask]
+k40_right_ips = right_ips[cal_peak_mask]
+
+bin_width = edges[1] - edges[0]
+
+k40_fwhm = k40_widths * bin_width
+
+k40_left_energy = edges[0] + k40_left_ips * bin_width
+k40_right_energy = edges[0] + k40_right_ips * bin_width
+
+print("K-40 FWHM:", k40_fwhm[0], "keV")
+print("FWHM lower bound:", k40_left_energy[0], "keV")
+print("FWHM upper bound:", k40_right_energy[0], "keV")
+print("FWHM %:", (k40_fwhm[0] / cal_k40_peak) * 100, "%")
+
+plt.hist(
+    calibrated_energies[calibrated_energies > 1],
+    bins=1024,
+    range=(0, 3000),
+    histtype="step",
+    label="Weighted + Smeared + Calibrated Energy",
+)
+#plt.yscale("log")
+plt.legend()
+plt.xlabel("Energy (keV)")
+plt.ylabel("Counts")
+plt.show()
