@@ -146,7 +146,7 @@ print("Unsmeared FWHM lower bound:", k40_lower_energy[0], "keV")
 print("Unsmeared FWHM upper bound:", k40_upper_energy[0], "keV")
 
 #calculate centroid
-centroid_window = ((centers > peak_energy - weighted_k40_fwhm[0]) $ (centers < peak_energy + weighted_k40_fwhm[0]))
+centroid_window = ((centers > peak_energy - (2*weighted_k40_fwhm[0])) & (centers < peak_energy + (2*weighted_k40_fwhm[0])))
 
 centroid = np.average(centers[centroid_window], weights=hist[centroid_window])
 
@@ -205,7 +205,7 @@ cal_k40_centroid = np.average(centers[cal_centroid_window], weights=calibrated_h
 print("Calibrated K-40 centroid:", cal_k40_centroid, "keV")
 
 plt.hist(
-    calibrated_energies[calibrated_energies > 1],
+    k40_smeared[k40_smeared > 1],
     bins=1024,
     range=(0, 3000),
     histtype="step",
