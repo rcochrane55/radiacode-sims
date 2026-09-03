@@ -60,11 +60,11 @@ def smear_energy(E):
     return np.random.normal(E, sigma)
 
 #np.random.seed(12345)
-smeared = np.zeros_like(weighted_energy)
+#smeared = np.zeros_like(weighted_energy)
 
-mask = weighted_energy > 0
+#mask = weighted_energy > 0
 
-smeared[mask] = smear_energy(weighted_energy[mask])
+#smeared[mask] = smear_energy(weighted_energy[mask])
 
 print("\nRAW")
 print("min:", np.min(raw))
@@ -104,14 +104,14 @@ print("\nFirst non-zero events:")
     print("fStepY:", stepY[i])
     print("fStepZ:", stepZ[i]) 
 """
-#histogram of weighted smeared energies, not yet calibrated
+#histogram of weighted energies, not yet calibrated or smeared
 hist, edges = np.histogram(
-    smeared[smeared > 0],
+    weighted_energy[weighted_energy > 0],
     bins=1024,
     range=(0, 3000)
 )
-
 centers = (edges[:-1] + edges[1:]) / 2
+
 #identified peaks before recalibration
 peaks, properties = find_peaks(hist, prominence=np.max(hist) * 0.1)
 print("Indices:", peaks)
@@ -119,22 +119,53 @@ print("Energies:", centers[peaks])
 
 peak_mask = ((centers[peaks] > 1261) & (centers[peaks] < 1661))
 
+#identify peaks in spectrum
 k40_candidates = peaks[peak_mask]
 
-#shifted K-40 centroid
+#shifted K-40 mode
 k40_peak = k40_candidates[np.argmax(hist[k40_candidates])]
 
 peak_energy = centers[k40_peak]
 
 print("K-40 mode, uncorrected:", peak_energy)
 
-cal_factor = 1460.8/peak_energy
+widths, width_heights, lower_bound, upper_bound = peak_widths(hist, peaks, rel_height=0.5)
+
+weighted_k40_width = widths[peak_mask]
+weighted_lower_bound = lower_bound[peak_mask]
+weighted_upper_bound = upper_bound[peak_mask]
+
+bin_width = edges[1] - edges[0]
+
+weighted_k40_fwhm = weighted_k40_width * bin_width
+k40_lower_energy = edges[0] + weighted_lower_bound * bin_width
+k40_upper_energy = edges[0] + weighted_upper_bound * bin_width
+
+print("Unsmeared K-40 FWHM:", weighted_k40_fwhm[0], "keV")
+print("Unsmeared FWHM lower bound:", k40_lower_energy[0], "keV")
+print("Unsmeared FWHM upper bound:", k40_upper_energy[0], "keV")
+
+#calculate centroid
+centroid_window = ((centers > peak_energy - weighted_k40_fwhm[0]) $ (centers < peak_energy + weighted_k40_fwhm[0]))
+
+centroid = np.average(centers[centroid_window], weights=hist[centroid_window])
+
+print("K-40 centroid, uncalibrated/unsmeared:", centroid, "keV")
+
+cal_factor = 1460.8/centroid
 
 print("recalibration factor:", cal_factor)
 
-#new calibrated energies and histogram
-calibrated_energies = smeared[smeared > 0] * cal_factor
-calibrated_hist, edges = np.histogram(calibrated_energies, bins=1024, range=(0,3000))
+#new calibrated energies and histogram, not yet smeared
+calibrated_energies = weighted_energy[weighted_energy > 0] * cal_factor
+
+#apply gaussian smearing
+k40_smeared = np.zeros_like(calibrated_energies)
+mask = calibrated_energies > 0
+k40_smeared[mask] = smear_energy(calibrated_energies[mask])
+
+#calibrated and smeared histogram
+calibrated_hist, edges = np.histogram(k40_smeared, bins=1024, range=(0,3000))
 centers = (edges[:-1] + edges[1:]) / 2
 
 #search again for recalibrated peaks
@@ -165,7 +196,13 @@ k40_right_energy = edges[0] + k40_right_ips * bin_width
 print("K-40 FWHM:", k40_fwhm[0], "keV")
 print("FWHM lower bound:", k40_left_energy[0], "keV")
 print("FWHM upper bound:", k40_right_energy[0], "keV")
-print("FWHM %:", (k40_fwhm[0] / cal_k40_peak) * 100, "%")
+#print("FWHM %:", (k40_fwhm[0] / cal_k40_peak) * 100, "%")
+
+#calibrated smeared centroid
+cal_centroid_window = ((centers > cal_k40_peak - k40_fwhm[0]) & (centers < cal_k40_peak + k40_fwhm[0]))
+cal_k40_centroid = np.average(centers[cal_centroid_window], weights=calibrated_hist[cal_centroid_window])
+
+print("Calibrated K-40 centroid:", cal_k40_centroid, "keV")
 
 plt.hist(
     calibrated_energies[calibrated_energies > 1],
