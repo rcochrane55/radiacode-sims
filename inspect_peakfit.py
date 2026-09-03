@@ -178,7 +178,7 @@ print("calibrated energies:", centers[calibrated_peaks])
 
 cal_peak_mask = ((centers[calibrated_peaks] > 1400) & (centers[calibrated_peaks] < 1500))
 
-print("Calibrated modes:", centers[calibrated_peaks])
+#print("Calibrated modes:", centers[calibrated_peaks])
 cal_k40_peak = centers[calibrated_peaks[cal_peak_mask]][0]
 
 print("K-40 mode, calibrated:", cal_k40_peak)
@@ -206,6 +206,17 @@ cal_centroid_window = ((centers > 1460.8 - (0.5*k40_fwhm[0])) & (centers < 1460.
 cal_k40_centroid = np.average(centers[cal_centroid_window], weights=calibrated_hist[cal_centroid_window])
 
 print("Calibrated K-40 centroid:", cal_k40_centroid, "keV")
+
+#calculate peak area by ROI integration
+roi = ((centers > cal_k40_centroid - k40_fwhm[0]) & (centers < cal_k40_centroid + k40_fwhm[0]))
+
+peak_area = np.sum(calibrated_hist[roi])
+
+print("Peak area:", peak_area)
+
+efficiency = peak_area/100000000
+
+print("Efficiency:", efficiency)
 
 plt.hist(
     k40_smeared[k40_smeared > 1],
