@@ -49,9 +49,9 @@ weighted_energy = ak.sum(stepE * weight, axis=1)
 weighted_energy = ak.to_numpy(weighted_energy) * 1000
 
 def smear_energy(E):
-    a = -1252.39
-    b = 8.390725
-    c = -0.00205
+    a = -391.425599
+    b = 6.723136106
+    c = -0.000543789
 
     fwhm2 = a + (b*E) + (c*(E**2))
     fwhm2 = np.maximum(fwhm2, 0.1)  # Ensure non-negative values
@@ -229,7 +229,7 @@ plt.hist(
     label="Weighted + Smeared + Calibrated Energy",
 )
 plt.axvspan(roi_lower, roi_upper, color="orange", alpha=0.3, label="Peak ROI")
-#plt.yscale("log")
+plt.yscale("log")
 plt.legend()
 plt.xlabel("Energy (keV)")
 plt.ylabel("Counts")
