@@ -73,7 +73,7 @@ int main(int argc,char** argv)
 
   // Physics list
   G4VModularPhysicsList* physicsList = new QBBC;
-  G4VModularPhysicsList* physicsList = new G4OpticalPhysics();
+  auto opticalPhysics = new G4OpticalPhysics();
   physicsList->SetVerboseLevel(1);
   runManager->SetUserInitialization(physicsList);
     
