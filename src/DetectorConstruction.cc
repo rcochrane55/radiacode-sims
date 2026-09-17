@@ -143,15 +143,15 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   auto TopReflectorLV = new G4LogicalVolume(topReflectorSolid, TiO2, "TopReflectorLogical");
   auto BottomReflectorLV = new G4LogicalVolume(bottomReflectorSolid, TiO2, "BottomReflectorLogical");
 
-  /* REFLECTIVITY = 0.98;
+  REFLECTIVITY = 0.947;
   auto reflectorSurface = new G4OpticalSurface("ReflectorSurface");
   reflectorSurface->SetType(dielectric_metal);
-  reflectorSurface->SetFinish(rough);
-  reflectorSurface->SetModel(ground);
+  reflectorSurface->SetFinish(ground);
+  reflectorSurface->SetModel(unified);
 
   G4MaterialPropertiesTable* reflectorMPT = new G4MaterialPropertiesTable();
-  reflectorMPT->AddProperty("REFLECTIVITY", energies, REFLECTIVITY, nEntries);
-  reflectorSurface->SetMaterialPropertiesTable(reflectorMPT); */
+  reflectorMPT->AddConstProperty("REFLECTIVITY", REFLECTIVITY);
+  reflectorSurface->SetMaterialPropertiesTable(reflectorMPT); 
 
   auto SiPMSolid = new G4Box("SiPM", siPMSide/2, siPMThickness/2,siPMSide/2);
   auto SiPMLV = new G4LogicalVolume(SiPMSolid, nist->FindOrBuildMaterial("G4_Si"), "SiPMLV");
