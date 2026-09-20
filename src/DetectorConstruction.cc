@@ -143,7 +143,7 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   auto TopReflectorLV = new G4LogicalVolume(topReflectorSolid, TiO2, "TopReflectorLogical");
   auto BottomReflectorLV = new G4LogicalVolume(bottomReflectorSolid, TiO2, "BottomReflectorLogical");
 
-  REFLECTIVITY = 0.947;
+  G4double REFLECTIVITY = 0.947;
   auto reflectorSurface = new G4OpticalSurface("ReflectorSurface");
   reflectorSurface->SetType(dielectric_metal);
   reflectorSurface->SetFinish(ground);
