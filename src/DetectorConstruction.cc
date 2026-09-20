@@ -45,6 +45,7 @@
 #include "G4OpticalSurface.hh"
 #include "G4MaterialPropertiesTable.hh"
 #include "G4PhysicalConstants.hh"
+#include "G4LogicalBorderSurface.hh"
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -233,7 +234,6 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
       scintLength/2     // half length in z
     );
 
-  
   G4LogicalVolume * scintLV = new G4LogicalVolume(
       scintSolid, // its solid
       scintMat,   // its material
@@ -245,7 +245,7 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   //auto activeSolid = new G4Box("Active", activeSide/2, activeSide/2, activeSide/2);
   //auto activeLV = new G4LogicalVolume(activeSolid, scintMat, "ActiveLV");
 
-  new G4PVPlacement(0,                       //no rotation
+  auto scintillatorPV = new G4PVPlacement(0,                       //no rotation
                     scintPos,                    //at position
                     scintLV,             //its logical volume
                     "scint",                //its name
@@ -256,14 +256,20 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
 
   G4double offset = crystalSize/2 + reflectorThickness/2;
 
-  new G4PVPlacement(nullptr, scintPos + G4ThreeVector(-offset, 0, 0), SideReflectorLV1, "SideReflector1", logicWorld, false, 0, checkOverlaps);
-  new G4PVPlacement(nullptr, scintPos + G4ThreeVector(offset, 0, 0), SideReflectorLV2, "SideReflector2", logicWorld, false, 0, checkOverlaps);
-  new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, -offset, 0), SideReflectorLV3, "SideReflector3", logicWorld, false, 0, checkOverlaps);
-  new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, offset), TopReflectorLV, "TopReflector", logicWorld, false, 0, checkOverlaps);
-  new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, -offset), BottomReflectorLV, "BottomReflector", logicWorld, false, 0, checkOverlaps);
-  new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, offset, 0), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
+  auto sideReflectorPV1 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(-offset, 0, 0), SideReflectorLV1, "SideReflector1", logicWorld, false, 0, checkOverlaps);
+  auto sideReflectorPV2 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(offset, 0, 0), SideReflectorLV2, "SideReflector2", logicWorld, false, 0, checkOverlaps);
+  auto sideReflectorPV3 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, -offset, 0), SideReflectorLV3, "SideReflector3", logicWorld, false, 0, checkOverlaps);
+  auto topReflectorPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, offset), TopReflectorLV, "TopReflector", logicWorld, false, 0, checkOverlaps);
+  auto bottomReflectorPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, -offset), BottomReflectorLV, "BottomReflector", logicWorld, false, 0, checkOverlaps);
+  auto siPMPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, offset, 0), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
 
-  new G4PVPlacement(nullptr, scintPos, claddingLV, "Cladding", logicWorld, false, 0, checkOverlaps);
+  auto claddingPV = new G4PVPlacement(nullptr, scintPos, claddingLV, "Cladding", logicWorld, false, 0, checkOverlaps);
+
+  new G4LogicalBorderSurface("SideReflectorSurface1", scintillatorPV, sideReflectorPV1, reflectorSurface);
+  new G4LogicalBorderSurface("SideReflectorSurface2", scintillatorPV, sideReflectorPV2, reflectorSurface);
+  new G4LogicalBorderSurface("SideReflectorSurface3", scintillatorPV, sideReflectorPV3, reflectorSurface);
+  new G4LogicalBorderSurface("TopReflectorSurface", scintillatorPV, topReflectorPV, reflectorSurface);
+  new G4LogicalBorderSurface("BottomReflectorSurface", scintillatorPV, bottomReflectorPV, reflectorSurface);
 
 /* G4LogicalVolume * marinelliLV = new G4LogicalVolume(
   marinelliSolid, // its solid
