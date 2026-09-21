@@ -155,12 +155,12 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   G4cout << "defining reflector properties" << G4endl;
   G4double REFLECTIVITY = 0.947;
   G4double reflectorEnergy[] = {
-    1.5 * eV, 
-    3.5 * eV
+    1.0 * eV, 
+    4.5 * eV
   };
   G4double reflectivity[] = {
-    0.95,
-    0.95
+    0.947,
+    0.947
   };
   auto reflectorSurface = new G4OpticalSurface("ReflectorSurface");
   reflectorSurface->SetType(dielectric_metal);
@@ -188,12 +188,12 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   auto SiPM_MPT = new G4MaterialPropertiesTable();
   // G4double SiPM_EFFICIENCY = 0.5;
   G4double SiPMEnergy[] = {
-    1.5 * eV, 
-    3.5 * eV
+    1.0 * eV, 
+    4.5 * eV
   };
   G4double SiPMReflectivity[] = {
-    0.95,
-    0.95
+    0.1,
+    0.1
   };
   G4double SiPMEfficiency[] = {
     0.5,
@@ -225,8 +225,8 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   G4cout << "defining refractive index" << G4endl;
   //G4double rindex = 1.79;
   G4double refractivityEnergy[] = {
-    1.5 * eV, 
-    3.5 * eV
+    1.0 * eV, 
+    4.5 * eV
   };
   G4double rindex[] = {
     1.79,
