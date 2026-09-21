@@ -4,7 +4,7 @@
 /gps/particle opticalphoton
 
 #point source within scint
-/gps/pos/type point
+/gps/pos/type Point
 /gps/pos/centre 0 0 0 mm
 
 #emit photons isotropically
