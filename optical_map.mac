@@ -1,0 +1,19 @@
+/run/verbose 2
+/run/initialize
+
+# Optical photon source
+/gps/particle opticalphoton
+
+# Point source within scintillator
+/gps/pos/type Point
+/gps/pos/centre 0 0 0 mm
+
+# Emit photons isotropically
+/gps/direction 0 1 0
+/gps/polarization 0 0 0
+
+# Set photon energy
+/gps/energy 2.25 eV
+
+# Run 78,883 photons
+/run/beamOn 100
