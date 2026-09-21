@@ -248,14 +248,13 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   while (std::getline(file, line)) {
     std::stringstream ss(line);
 
-    double wavelength_nm;
+    double energy_eV;
     double intensity;
     char comma;
-    if (ss >> wavelength_nm >> comma >> intensity)
+    if (ss >> energy_eV >> comma >> intensity)
     {
-      G4double energy_eV = (h_Planck * c_light) / (wavelength_nm * nm);
       emissionData.emplace_back(
-        energy_eV,
+        energy_eV * eV,
         intensity
       );
     }
