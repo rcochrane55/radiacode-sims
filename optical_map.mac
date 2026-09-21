@@ -1,3 +1,5 @@
+/run/numberOfThreads 1
+/run/verbose 2
 /run/initialize
 
 #optical photon source
