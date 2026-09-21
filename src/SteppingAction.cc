@@ -27,21 +27,20 @@
 /// \file SteppingAction.cc
 /// \brief Implementation of the SteppingAction class
 
-#include "G4SystemOfUnits.hh"
-
+#include "RunAction.hh"
 #include "SteppingAction.hh"
-#include "EventAction.hh"
-#include "DetectorConstruction.hh"
-
 #include "G4Step.hh"
-#include "G4Event.hh"
+#include "G4Track.hh"
+#include "G4StepPoint.hh"
 #include "G4RunManager.hh"
-#include "G4LogicalVolume.hh"
+#include "G4OpticalPhoton.hh"
+#include "G4OpBoundaryProcess.hh"
+#include "G4ProcessManager.hh"
 
-SteppingAction::SteppingAction(EventAction* eventAction)
+SteppingAction::SteppingAction(RunAction* runAction)
 : G4UserSteppingAction(),
-  fEventAction(eventAction),
-  fScoringVolume(0)
+  fRunAction(runAction),
+  fBoundaryProcess(nullptr)
 {}
 
 SteppingAction::~SteppingAction()
@@ -49,42 +48,41 @@ SteppingAction::~SteppingAction()
 
 void SteppingAction::UserSteppingAction(const G4Step* step)
 {
-  if (!fScoringVolume) { 
-    const DetectorConstruction* detectorConstruction
-      = static_cast<const DetectorConstruction*>
-        (G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-    fScoringVolume = detectorConstruction->GetScoringVolume();   
- //   G4cout << "Scoring volume = "
- //          << fScoringVolume->GetName()
- //          << G4endl;
+  G4Track* track = step->GetTrack();
+
+  if (track->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition())
+  {
+    return;
   }
 
-  // get volume of the current step
-  G4LogicalVolume* volume = 
-      step->GetPreStepPoint()->GetTouchableHandle()
-      ->GetVolume()->GetLogicalVolume();
-  
-//  G4cout << "Particle: "
-//       << step->GetTrack()->GetParticleDefinition()->GetParticleName()
-//       << ", Volume: "
-//       << volume->GetName()
-//       << G4endl;
-      
-  // check if we are in scoring volume
-  if (volume != fScoringVolume) return;
+  if (!fBoundaryProcess)
+  {
+    G4ProcessManager* processManager = G4OpticalPhoton::OpticalPhotonDefinition()->GetProcessManager();
 
-  // collect energy deposited in this step
+    G4ProcessVector* processList = processManager->GetProcessList();
 
-  // G4double edepStep = step->GetTotalEnergyDeposit();
-  G4double edepStep = step->GetTotalEnergyDeposit();
+    for (G4int i=0; i < processManager->GetProcessListLength(); ++i)
+    {
+      auto process = dynamic_cast<G4OpBoundaryProcess*>((*processList)[i]);
 
-// fEventAction->AddEdep(edepStep);
+      if (process)
+      {
+        fBoundaryProcess = process;
+        break;
+      }
+    }
+  }
 
-if (edepStep > 0.)
-{
-   G4ThreeVector midPos = 0.5*(step->GetPreStepPoint()->GetPosition() + step->GetPostStepPoint()->GetPosition());
-   fEventAction->AddStep(edepStep, midPos);
- }
+  G4StepPoint* postStep = step->GetPostStepPoint();
+  if (postStep->GetStepStatus() != fGeomBoundary)
+  {
+    return;
+  }
+
+  if (fBoundaryProcess && fBoundaryProcess->GetStatus() == Detection)
+  {
+    fRunAction->AddDetectedPhoton();
+  }
 }
 
 

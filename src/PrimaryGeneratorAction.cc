@@ -28,46 +28,30 @@
 /// \brief Implementation of the PrimaryGeneratorAction class
 
 #include "PrimaryGeneratorAction.hh"
-
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
 #include "G4RunManager.hh"
-#include "G4ParticleGun.hh"
 #include "G4GeneralParticleSource.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
+#include "G4OpticalPhoton.hh"
 
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
-  fParticleGun(0),
-  fGPS(0), 
-  fEnvelopeBox(0)
+  fGPS(nullptr) 
 {
-  G4int n_particle = 1;
-  fParticleGun  = new G4ParticleGun(n_particle);
-
   fGPS = new G4GeneralParticleSource();
-
-  // default particle kinematic
-  // G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  // G4String particleName;
-  // G4ParticleDefinition* particle
-  //   = particleTable->FindParticle(particleName="gamma");
-  // fParticleGun->SetParticleDefinition(particle);
-  // fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1));
-  // fParticleGun->SetParticleEnergy(662.*keV);
-
+  fGPS->SetParticleDefinition(G4OpticalPhoton::OpticalPhotonDefinition());
   
 }
 
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
-  delete fParticleGun;
   delete fGPS;
 }
 
@@ -75,19 +59,8 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   //this function is called at the begining of each event
-  // //
+  // 
 
-  
-  // cancello tutte queste cose della particle gun perché uso la GPS
-
-  // fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
-
-  //G4double gammaEnergies[3] = {662.*keV, 1120.*keV, 1764.*keV} ;
-
-  // fParticleGun->SetParticleEnergy(gammaEnergies[int(G4UniformRand()*3)]);
-  // fParticleGun->SetParticlePosition(G4ThreeVector(0,0,-2*cm));
-  // fParticleGun->SetParticleMomentumDirection(G4ThreeVector(G4UniformRand()-0.5,G4UniformRand()-0.5, G4UniformRand()-0.5));
-  // fParticleGun->GeneratePrimaryVertex(anEvent);
   fGPS->GeneratePrimaryVertex(anEvent);
 }
 

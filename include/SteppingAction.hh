@@ -33,9 +33,9 @@
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
 
-class EventAction;
+class RunAction;
 
-class G4LogicalVolume;
+class G4OpBoundaryProcess;
 
 /// Stepping action class
 /// 
@@ -43,15 +43,15 @@ class G4LogicalVolume;
 class SteppingAction : public G4UserSteppingAction
 {
   public:
-    SteppingAction(EventAction* eventAction);
+    SteppingAction(RunAction* runAction);
     virtual ~SteppingAction();
 
     // method from the base class
     virtual void UserSteppingAction(const G4Step*);
 
   private:
-    EventAction*  fEventAction;
-    G4LogicalVolume* fScoringVolume;
+    RunAction*  fRunAction;
+    G4OpBoundaryProcess* fBoundaryProcess = nullptr;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

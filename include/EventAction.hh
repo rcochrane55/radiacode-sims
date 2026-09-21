@@ -59,6 +59,16 @@ class EventAction : public G4UserEventAction
       return fRawEdep;
     }
 
+    void AddDetectedPhoton()
+    {
+      fDetectedPhotons++;
+    }
+
+    G4int GetDetectedPhotons() const
+    {
+      return fDetectedPhotons;
+    }
+
     // G4double GetSmearedEdep() const
     // {
     //   return fSmearedEdep;
@@ -87,6 +97,8 @@ class EventAction : public G4UserEventAction
     // G4double fFirstY;
     // G4double fFirstZ;
     G4bool fFirstInteractionRecorded;
+    G4int fDetectedPhotons;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

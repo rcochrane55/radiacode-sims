@@ -57,15 +57,16 @@ EventAction::~EventAction()
 void EventAction::AddStep(G4double edep, const G4ThreeVector& pos)
 {
   fRawEdep += edep;
-  fRunAction->AddStep(edep, pos);
+  // fRunAction->AddStep(edep, pos);
 }
 
 void EventAction::BeginOfEventAction(const G4Event*)
 {    
   fRawEdep = 0.;
+  fDetectedPhotons = 0;
   //fSmearedEdep = 0.;
 
-  fRunAction->ClearSteps();
+  // fRunAction->ClearSteps();
 
   fFirstInteractionRecorded = false;
 
@@ -119,6 +120,7 @@ void EventAction::EndOfEventAction(const G4Event*)
     //analysisManager->FillH1(1, fSmearedEdep);
 
   analysisManager->FillNtupleDColumn(0, fRawEdep);
+  analysisManager->FillNtupleDColumn(1, fDetectedPhotons);
   // analysisManager->FillNtupleDColumn(1, fStepEnergy);
   // analysisManager->FillNtupleDColumn(1, fSmearedEdep);
   // analysisManager ->FillNtupleDColumn(2, fStepX);

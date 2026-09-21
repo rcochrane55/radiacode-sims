@@ -28,39 +28,17 @@
 /// \brief Implementation of the RunAction class
 
 #include "RunAction.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "DetectorConstruction.hh"
 // #include "Run.hh"
 
 #include "G4RunManager.hh"
 #include "G4Run.hh"
-#include "G4AccumulableManager.hh"
-#include "G4LogicalVolumeStore.hh"
-#include "G4LogicalVolume.hh"
-#include "G4UnitsTable.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4AnalysisManager.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::RunAction()
-: G4UserRunAction(),
-  fEdep(0.),
-  fEdep2(0.)
+: G4UserRunAction(), fDetectedPhotons(0)
 { 
-  // add new units for dose
-  // 
-  const G4double milligray = 1.e-3*gray;
-  const G4double microgray = 1.e-6*gray;
-  const G4double nanogray  = 1.e-9*gray;  
-  const G4double picogray  = 1.e-12*gray;
-   
-  new G4UnitDefinition("milligray", "milliGy" , "Dose", milligray);
-  new G4UnitDefinition("microgray", "microGy" , "Dose", microgray);
-  new G4UnitDefinition("nanogray" , "nanoGy"  , "Dose", nanogray);
-  new G4UnitDefinition("picogray" , "picoGy"  , "Dose", picogray); 
-
-  // Register accumulable to the accumulable manager
+  /* // Register accumulable to the accumulable manager
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
   accumulableManager->RegisterAccumulable(fEdep);
   accumulableManager->RegisterAccumulable(fEdep2); 
@@ -75,10 +53,11 @@ RunAction::RunAction()
   analysisManager->CreateNtuple("t", "Edep");
   analysisManager->CreateNtupleDColumn("RawEdep");
   analysisManager->CreateNtupleDColumn("fStepEnergy", fStepEnergy);
+  analysisManager->CreateNtupleDColumn("DetectedPhotons");
   analysisManager ->CreateNtupleDColumn("fStepX", fStepX);
   analysisManager ->CreateNtupleDColumn("fStepY", fStepY);
   analysisManager ->CreateNtupleDColumn("fStepZ", fStepZ);
-  analysisManager->FinishNtuple(0);
+  analysisManager->FinishNtuple(0); */
 }
 
 RunAction::~RunAction()
@@ -88,23 +67,23 @@ void RunAction::BeginOfRunAction(const G4Run*)
 { 
   // inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
-
+  fDetectedPhotons = 0;
   // reset accumulables to their initial values
-  G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
-  accumulableManager->Reset();
+/*   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
+  accumulableManager->Reset(); */
 
   // Get analysis manager
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  /* G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   G4String fileName="rootOutput";
   
   if(!analysisManager->GetFileName().empty())
     fileName = analysisManager->GetFileName();
   
   analysisManager->OpenFile(fileName);
-
+ */
 }
 
-void RunAction::AddStep(G4double edep, const G4ThreeVector& pos)
+/* void RunAction::AddStep(G4double edep, const G4ThreeVector& pos)
 {
   fStepEnergy.push_back(edep);
   fStepX.push_back(pos.x());
@@ -118,11 +97,26 @@ void RunAction::ClearSteps()
   fStepX.clear();
   fStepY.clear();
   fStepZ.clear();
-}
+} */
 
 void RunAction::EndOfRunAction(const G4Run* run)
 {
-  G4int nofEvents = run->GetNumberOfEvent();
+  G4int emittedPhotons = run->GetNumberOfEvent();
+
+  if (emittedPhotons == 0)
+    return;
+
+  G4double efficiency = static_cast<G4double>(fDetectedPhotons)/static_cast<G4double>(emittedPhotons);
+
+  G4cout 
+    << G4endl
+    << "Optical map result:" << G4endl
+    << "  Emitted photons: " << emittedPhotons << G4endl
+    << "  Detected Photons: " << fDetectedPhotons << G4endl
+    << "  Efficiency: " << efficiency << G4endl;
+}
+  
+  /* G4int nofEvents = run->GetNumberOfEvent();
   if (nofEvents == 0) return;
 
   // Merge accumulables 
@@ -153,16 +147,17 @@ void RunAction::EndOfRunAction(const G4Run* run)
   G4String runCondition;
   if (generatorAction)
   {
-    const G4ParticleGun* particleGun = generatorAction->GetParticleGun();
-    runCondition += particleGun->GetParticleDefinition()->GetParticleName();
-    runCondition += " of ";
-    G4double particleEnergy = particleGun->GetParticleEnergy();
-    runCondition += G4BestUnit(particleEnergy,"Energy");
-  }
+    //const G4ParticleGun* particleGun = generatorAction->GetParticleGun();
+    //runCondition += particleGun->GetParticleDefinition()->GetParticleName();
+    //runCondition += " of ";
+    //G4double particleEnergy = particleGun->GetParticleEnergy();
+    //runCondition += G4BestUnit(particleEnergy,"Energy");
+  } */
+
         
   // Print
   //  
-  if (IsMaster()) {
+/*   if (IsMaster()) {
     G4cout
      << G4endl
      << "--------------------End of Global Run-----------------------";
@@ -171,21 +166,21 @@ void RunAction::EndOfRunAction(const G4Run* run)
     G4cout
      << G4endl
      << "--------------------End of Local Run------------------------";
-  }
+  } */
 
-// print histogram statistics
+/* // print histogram statistics
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   // save histograms
   analysisManager->Write();
-  analysisManager->CloseFile();
+  analysisManager->CloseFile(); */
 
 
-}
 
-void RunAction::AddEdep(G4double edep)
+
+/* void RunAction::AddEdep(G4double edep)
 {
   fEdep  += edep;
   fEdep2 += edep*edep;
 }
-
+ */

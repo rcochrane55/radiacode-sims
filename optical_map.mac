@@ -1,0 +1,18 @@
+/run/initialize
+
+#optical photon source
+/gps/particle opticalphoton
+
+#point source within scint
+/gps/pos/type point
+/gps/pos/centre 0 0 0 mm
+
+#emit photons isotropically
+/gps/ang/type iso
+/gps/polarization 0 0 0
+
+#set photon energy
+/gps/energy 2.25 eV
+
+#run 78,883 photons for 1461 keV full energy event
+/run/beamOn 78883
