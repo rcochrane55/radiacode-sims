@@ -14,7 +14,13 @@
 /gps/polarization 0 0 0
 
 #set photon energy
-/gps/energy 2.25 eV
+/gps/ene/type Arb
+/gps/ene/emspec true
+/gps/ene/diffspec true
+
+/gps/hist/type Arb
+/gps/hist/file emission_gps.dat
+/gps/hist/inter Lin
 
 #run 78,883 photons for 1461 keV full energy event
 /run/beamOn 78883
