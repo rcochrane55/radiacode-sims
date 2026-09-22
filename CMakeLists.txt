@@ -45,10 +45,10 @@ target_link_libraries(marinelli ${Geant4_LIBRARIES})
 set(marinelli_SCRIPTS
   init_vis.mac
   vis.mac
-  show_results.py
-  show_results.C
-  run.mac
-  root2dat.py
+  make_emissions_dat.py
+  optical_map.mac
+  absorption_length_data.csv
+  emission_spectrum_data.csv
   )
 
 foreach(_script ${marinelli_SCRIPTS})
