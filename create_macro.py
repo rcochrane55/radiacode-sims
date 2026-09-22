@@ -4,7 +4,7 @@ x_coords = np.linspace(-4.5, 4.5, 7)
 y_coords = np.linspace(-4.5, 4.5, 7)
 z_coords = np.linspace(-4.5, 4.5, 7)
 
-n_photons = 78883
+n_photons = 50000
 
 with open("generate_map.mac", "w") as f:
     f.write("/run/numberOfThreads 1\n")
