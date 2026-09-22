@@ -111,7 +111,7 @@ void RunAction::EndOfRunAction(const G4Run* run)
   G4cout 
     << G4endl
     << "Optical map result:" << G4endl
-    << "  Run ID: " << run->GetRunID() G4endl
+    << "  Run ID: " << run->GetRunID() << G4endl
     << "  Emitted photons: " << emittedPhotons << G4endl
     << "  Detected Photons: " << fDetectedPhotons << G4endl
     << "  Efficiency: " << efficiency << G4endl;

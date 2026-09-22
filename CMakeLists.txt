@@ -49,6 +49,7 @@ set(marinelli_SCRIPTS
   optical_map.mac
   absorption_length_data.csv
   emission_spectrum_data.csv
+  create_macro.py
   )
 
 foreach(_script ${marinelli_SCRIPTS})
