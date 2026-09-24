@@ -35,10 +35,16 @@
 
 RunAction::RunAction()
 : G4UserRunAction(), fDetectedPhotons(0)
-{}
+{
+    fCSVFile.open("optical_pdes.csv");
+    fCSVFile << "run_id, n_emitted, n_detected,efficiency\n";
+}
 
 RunAction::~RunAction()
-{}
+{
+    if (fCSVFile.is_open())
+        fCSVFile.close();
+}
 
 void RunAction::BeginOfRunAction(const G4Run*)
 { 
@@ -56,12 +62,20 @@ void RunAction::EndOfRunAction(const G4Run* run)
 
   G4double efficiency = static_cast<G4double>(fDetectedPhotons)/static_cast<G4double>(emittedPhotons);
 
-  G4cout 
-    << G4endl
-    << "Optical map result:" << G4endl
-    << "  Run ID: " << run->GetRunID() << G4endl
-    << "  Emitted photons: " << emittedPhotons << G4endl
-    << "  Detected Photons: " << fDetectedPhotons << G4endl
-    << "  Efficiency: " << efficiency << G4endl;
+  fCSVFile
+      << run->GetRunID() << ","
+      << emittedPhotons << ","
+      << fDetectedPhotons << ","
+      << efficiency << "\n";
+
+  fCSVFile.flush()
+
+  // G4cout 
+    // << G4endl
+    // << "Optical map result:" << G4endl
+    // << "  Run ID: " << run->GetRunID() << G4endl
+    // << "  Emitted photons: " << emittedPhotons << G4endl
+    // << "  Detected Photons: " << fDetectedPhotons << G4endl
+    // << "  Efficiency: " << efficiency << G4endl;
 }
   
