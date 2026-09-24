@@ -27,7 +27,7 @@
 /// \file DetectorConstruction.cc
 /// \brief Implementation of the DetectorConstruction class
 
-#include "CADMesh.hh"
+// #include "CADMesh.hh"
 #include "DetectorConstruction.hh"
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
