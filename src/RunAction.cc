@@ -36,6 +36,7 @@
 RunAction::RunAction()
 : G4UserRunAction(), fDetectedPhotons(0)
 {
+    G4cout << "RunAction created at " << this << G4endl;
     fCSVFile.open("optical_pdes.csv");
     fCSVFile << "run_id, n_emitted, n_detected,efficiency\n";
 }
