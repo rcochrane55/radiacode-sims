@@ -1,10 +1,15 @@
 import numpy as np
+import csv
 
 x_coords = np.linspace(-4.5, 4.5, 7)
 y_coords = np.linspace(-4.5, 4.5, 7)
 z_coords = np.linspace(-4.5, 4.5, 7)
 
 n_photons = 50000
+
+csv_headers = ["run_id", "x_mm", "y_mm", "z_mm"]
+
+rows = []
 
 with open("generate_map.mac", "w") as f:
     f.write("/run/numberOfThreads 1\n")
@@ -30,4 +35,12 @@ with open("generate_map.mac", "w") as f:
                 f.write(f"/gps/pos/centre "
                 f"{x} {y} {z} mm\n")
                 f.write(f"/run/beamOn {n_photons}\n")
+                data = [run_id, x, y, z]
+                rows.append(data)
                 run_id += 1
+
+with open("map_coords.csv", "w",newline="") as coords:
+    writer = csv.writer(coords)
+    writer.writerow(csv_headers)
+    for i in range(len(rows)):
+        writer.writerow(rows[i])

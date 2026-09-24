@@ -42,7 +42,7 @@ target_link_libraries(marinelli ${Geant4_LIBRARIES})
 # build marinelli. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-set(marinelli_SCRIPTS
+set(marinelli_FILES
   init_vis.mac
   vis.mac
   make_emissions_dat.py
@@ -52,11 +52,12 @@ set(marinelli_SCRIPTS
   create_macro.py
   )
 
-foreach(_script ${marinelli_SCRIPTS})
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/${_script}
-    ${PROJECT_BINARY_DIR}/${_script}
-    COPYONLY
+foreach(_file ${marinelli_FILES})
+  add_custom_command(
+    TARGET marinelli POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -D copy_if_different
+        ${PROJECT_SOURCE_DIR}/${_file}
+        $<TARGET_FILE_DIR:marinelli>
     )
 endforeach()
 

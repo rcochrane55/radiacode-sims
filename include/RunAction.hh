@@ -30,6 +30,7 @@
 #ifndef RunAction_h
 #define RunAction_h 1
 
+#include <fstream>
 #include <vector>
 #include "G4UserRunAction.hh"
 #include "G4Accumulable.hh"
@@ -55,6 +56,7 @@ class RunAction : public G4UserRunAction
 
   private:
     G4int fDetectedPhotons = 0;
+    std::ofstream fCSVFile;
 };
 
 #endif
