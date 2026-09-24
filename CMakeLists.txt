@@ -55,7 +55,7 @@ set(marinelli_FILES
 foreach(_file ${marinelli_FILES})
   add_custom_command(
     TARGET marinelli POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -D copy_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${PROJECT_SOURCE_DIR}/${_file}
         $<TARGET_FILE_DIR:marinelli>
     )
