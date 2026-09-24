@@ -50,6 +50,7 @@ set(marinelli_FILES
   absorption_length_data.csv
   emission_spectrum_data.csv
   create_macro.py
+  merge_outputs.py
   )
 
 foreach(_file ${marinelli_FILES})
