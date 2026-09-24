@@ -37,8 +37,6 @@ RunAction::RunAction()
 : G4UserRunAction(), fDetectedPhotons(0)
 {
     G4cout << "RunAction created at " << this << G4endl;
-    fCSVFile.open("optical_pdes.csv");
-    fCSVFile << "run_id, n_emitted, n_detected,efficiency\n";
 }
 
 RunAction::~RunAction()
@@ -52,10 +50,18 @@ void RunAction::BeginOfRunAction(const G4Run*)
   // inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
   fDetectedPhotons = 0;
+  if (!IsMaster() && !fCSVFile.is_open())
+  {
+    fCSVFile.open("optical_pdes.csv", std::ios::out);
+    fCSVFile << "run_id,n_emitted,n_detected,efficiency\n";
+  }
 }
 
 void RunAction::EndOfRunAction(const G4Run* run)
 {
+  if (IsMaster())
+      return;
+
   G4int emittedPhotons = run->GetNumberOfEvent();
 
   if (emittedPhotons == 0)
@@ -63,13 +69,17 @@ void RunAction::EndOfRunAction(const G4Run* run)
 
   G4double efficiency = static_cast<G4double>(fDetectedPhotons)/static_cast<G4double>(emittedPhotons);
 
-  fCSVFile
-      << run->GetRunID() << ","
-      << emittedPhotons << ","
-      << fDetectedPhotons << ","
-      << efficiency << "\n";
+  if (!IsMaster())
+  {
+      fCSVFile
+            << run->GetRunID() << ","
+            << emittedPhotons << ","
+            << fDetectedPhotons << ","
+            << efficiency << "\n";
+  }
+  
 
-  fCSVFile.flush()
+  fCSVFile.flush();
 
   // G4cout 
     // << G4endl
