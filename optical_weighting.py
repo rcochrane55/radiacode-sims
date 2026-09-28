@@ -155,17 +155,17 @@ fitter = bq.Fitter(
 )
 
 fitter.fit(backend="lmfit")
-params = fitter.params
+centroid = fitter.param_val("gauss0_mu")
+sigma = fitter.param_val("gauss0_sigma")
+peak_area = fitter.param_val("gauss0_amp")
+optical_fwhm = fitter.param_val("gauss0_fwhm")
 
 print("\nBecquerel K-40 peak fit:")
-print("Centroid:", params["gauss0_mu"].value, "keV")
-print("Sigma:", params["gauss0_sigma"].value, "keV")
-print("Peak area:", params["gauss0_amp"].value, "counts")
-
-optical_fwhm = params["gauss0_fwhm"].value
-
+print("Centroid:", centroid, "keV")
+print("Sigma:", sigma, "keV")
+print("Peak area:", peak_area, "counts")
 print("Optical FWHM:", optical_fwhm, "keV")
-print("Optical FWHM:", 100 * optical_fwhm / params["gauss0_mu"].value, "%")
+print("Optical FWHM:", 100 * optical_fwhm / centroid, "%")
 
 fitter.custom_plot()
 plt.tight_layout()
@@ -229,10 +229,48 @@ plt.title("Weighted + Smeared Energy Spectrum")
 plt.xlim(0, 3000)
 plt.show()
 
-full_energy = (raw > 1450) & (raw < 1470)
-full_reco = reconstructed_energy[full_energy]
+bq_spec = bq.Spectrum.from_listmode(
+    listmode_data=smeared_energy[smeared_energy > 0],
+    bins=edges,
+    is_cal=True
+)
 
-plt.hist(full_reco, bins=200, histtype="step")
+y = bq_spec.counts_vals
+y_unc = np.sqrt(y)
+dx = np.full_like(bq_spec.bin_centers_kev, bin_width, dtype=float)
+
+model = (
+    bq.fitting.GaussModel(prefix="gauss0_") +
+    bq.fitting.LineModel(prefix="linear_")
+)
+
+fitter = bq.Fitter(
+    model,
+    x=bq_spec.bin_centers_kev,
+    y=y,
+    y_unc=y_unc,
+    dx=dx,
+    roi=(1340, 1600)
+)
+fitter.fit(backend="lmfit")
+centroid = fitter.param_val("gauss0_mu")
+sigma = fitter.param_val("gauss0_sigma")
+peak_area = fitter.param_val("gauss0_amp")
+optical_fwhm = fitter.param_val("gauss0_fwhm")
+print("Centroid:", centroid, "keV")
+print("Sigma:", sigma, "keV")
+print("Peak area:", peak_area, "counts")
+print("Optical FWHM:", optical_fwhm, "keV")
+print("Optical FWHM:", 100 * optical_fwhm / centroid, "%")
+
+fitter.custom_plot()
+plt.tight_layout()
+plt.show()
+
+#full_energy = (raw > 1450) & (raw < 1470)
+#full_reco = reconstructed_energy[full_energy]
+
+""" plt.hist(full_reco, bins=200, histtype="step")
 plt.xlabel("Reconstructed Energy (keV)")
 plt.ylabel("Counts")
 plt.title("Optical Response of Full-Energy Events")
@@ -255,9 +293,9 @@ print("Mean:", np.mean(full_ratio))
 print("Median:", np.median(full_ratio))
 print("Std:", np.std(full_ratio))
 print("Min:", np.min(full_ratio))
-print("Max:", np.max(full_ratio))
+print("Max:", np.max(full_ratio)) """
 
-plt.hist(full_ratio, bins=200, histtype="step")
+""" plt.hist(full_ratio, bins=200, histtype="step")
 plt.xlabel("Energy-weighted optical efficiency")
 plt.ylabel("Events")
-plt.show()
+plt.show() """
