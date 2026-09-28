@@ -27,7 +27,7 @@
 /// \file DetectorConstruction.cc
 /// \brief Implementation of the DetectorConstruction class
 
-// #include "CADMesh.hh"
+#include "CADMesh.hh"
 #include "DetectorConstruction.hh"
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
@@ -102,26 +102,89 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
 
 // CsI scint assembly
 
-  // G4cout << "Defining scint dimensions" << G4endl;
+  G4cout << "Defining scint dimensions" << G4endl;
   G4double scintLength = 1.*cm ;
   G4double scintWidth = 1.*cm ;
   G4double scintHeight = 1.*cm ;
-  // G4cout << "scint dimensions defined" << G4endl;
+  G4cout << "scint dimensions defined" << G4endl;
 
-  // G4cout << "defining TiO2" << G4endl;
+  G4cout << "defining TiO2" << G4endl;
   G4Element* Ti = nist->FindOrBuildElement("Ti");
   G4Element* O = nist->FindOrBuildElement("O");
   G4Material* TiO2 = new G4Material("TiO2", 4.23*g/cm3, 2);
-  // G4cout << "TiO2 defined" << G4endl;
+  G4cout << "TiO2 defined" << G4endl;
 
   TiO2->AddElement(Ti, 1);
   TiO2->AddElement(O, 2);
 
   G4double crystalSize = 1.0*cm;
   G4double siPMSide = 0.6*cm;
-  G4double siPMThickness = 0.04*cm;
+  G4double siPMThickness = 0.03*cm;
   G4double reflectorThickness = 0.04*cm;
   G4double claddingThickness = 0.16*cm;
+
+// ============================================================
+// Optical grease - approximate EJ-550
+// ============================================================
+
+G4double greaseDensity = 1.06 * g/cm3;
+
+G4Element* elH  = nist->FindOrBuildElement("H");
+G4Element* elC  = nist->FindOrBuildElement("C");
+G4Element* elO  = nist->FindOrBuildElement("O");
+G4Element* elSi = nist->FindOrBuildElement("Si");
+
+G4Material* opticalGrease =
+    new G4Material(
+        "OpticalGrease",
+        greaseDensity,
+        4
+    );
+
+opticalGrease->AddElement(elC,  2);
+opticalGrease->AddElement(elH,  6);
+opticalGrease->AddElement(elO,  1);
+opticalGrease->AddElement(elSi, 1);
+
+G4MaterialPropertiesTable* greaseMPT =
+    new G4MaterialPropertiesTable();
+
+G4double greasePhotonEnergy[] = {
+    1.0 * eV,
+    4.5 * eV
+};
+
+G4double greaseRIndex[] = {
+    1.46,
+    1.46
+};
+
+G4double greaseAbsLength[] = {
+    10.0 * m,
+    10.0 * m
+};
+
+greaseMPT->AddProperty(
+    "RINDEX",
+    greasePhotonEnergy,
+    greaseRIndex,
+    2
+);
+
+greaseMPT->AddProperty(
+    "ABSLENGTH",
+    greasePhotonEnergy,
+    greaseAbsLength,
+    2
+);
+
+opticalGrease->SetMaterialPropertiesTable(greaseMPT); 
+
+G4cout << "Defining grease dimensions" << G4endl;
+  G4double greaseLength = 0.6*cm ;
+  G4double greaseWidth = 0.6*cm ;
+  G4double greaseHeight = 0.01*cm ;
+  G4cout << "grease defined" << G4endl;
 
 // define pos, mat, solids for cladding
   G4double reflectorOuter = 1*cm + 2.0*reflectorThickness;
@@ -136,31 +199,31 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   auto claddingLV = new G4LogicalVolume(claddingSolid, claddingMat, "CladdingLV");
 
 // define position and solids for reflector
-  // G4cout << "defining reflector solids" << G4endl;
+  G4cout << "defining reflector solids" << G4endl;
   auto sideReflectorSolid1 = new G4Box("SideReflector1", reflectorThickness/2, crystalSize/2, crystalSize/2);
   auto sideReflectorSolid2 = new G4Box("SideReflector2", reflectorThickness/2, crystalSize/2, crystalSize/2);
   auto sideReflectorSolid3 = new G4Box("SideReflector3", crystalSize/2,reflectorThickness/2, crystalSize/2);
   auto topReflectorSolid = new G4Box("TopReflector", crystalSize/2,crystalSize/2, reflectorThickness/2);
-  auto bottomReflectorSolid = new G4Box("BottomReflector", crystalSize/2, crystalSize/2, reflectorThickness/2);;
-  // G4cout << "reflector solids defined" << G4endl;
+  auto bottomReflectorSolid = new G4Box("BottomReflector", crystalSize/2, crystalSize/2, reflectorThickness/2);
+  G4cout << "reflector solids defined" << G4endl;
 
-  // G4cout << "creating reflector LVs" << G4endl;
+  G4cout << "creating reflector LVs" << G4endl;
   auto SideReflectorLV1 = new G4LogicalVolume(sideReflectorSolid1, TiO2, "SideReflectorLogical1");
   auto SideReflectorLV2 = new G4LogicalVolume(sideReflectorSolid2, TiO2, "SideReflectorLogical2");
   auto SideReflectorLV3 = new G4LogicalVolume(sideReflectorSolid3, TiO2, "SideReflectorLogical3");
   auto TopReflectorLV = new G4LogicalVolume(topReflectorSolid, TiO2, "TopReflectorLogical");
   auto BottomReflectorLV = new G4LogicalVolume(bottomReflectorSolid, TiO2, "BottomReflectorLogical");
-  // G4cout << "reflector LVs created" << G4endl;
+  G4cout << "reflector LVs created" << G4endl;
 
-  // G4cout << "defining reflector properties" << G4endl;
+  G4cout << "defining reflector properties" << G4endl;
   G4double REFLECTIVITY = 0.947;
   G4double reflectorEnergy[] = {
     1.0 * eV, 
     4.5 * eV
   };
   G4double reflectivity[] = {
-    0.947,
-    0.947
+    0.95,
+    0.95
   };
   auto reflectorSurface = new G4OpticalSurface("ReflectorSurface");
   reflectorSurface->SetType(dielectric_metal);
@@ -170,21 +233,21 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   G4MaterialPropertiesTable* reflectorMPT = new G4MaterialPropertiesTable();
   reflectorMPT->AddProperty("REFLECTIVITY", reflectorEnergy, reflectivity, 2);
   reflectorSurface->SetMaterialPropertiesTable(reflectorMPT); 
-  // G4cout << "reflector properties defined" << G4endl;
+  G4cout << "reflector properties defined" << G4endl;
 
-  // G4cout << "defining SiPM solid and LV" << G4endl;
+  G4cout << "defining SiPM solid and LV" << G4endl;
   auto SiPMSolid = new G4Box("SiPM", siPMSide/2, siPMThickness/2,siPMSide/2);
   auto SiPMLV = new G4LogicalVolume(SiPMSolid, nist->FindOrBuildMaterial("G4_Si"), "SiPMLV");
-  // G4cout << "SiPM solid + LV defined" << G4endl;
+  G4cout << "SiPM solid + LV defined" << G4endl;
 
-  // G4cout << "defining SiPM optical surface" << G4endl;
+  G4cout << "defining SiPM optical surface" << G4endl;
   auto SiPMSurface = new G4OpticalSurface("SiPMSurface");
   SiPMSurface->SetType(dielectric_metal);
   SiPMSurface->SetFinish(polished);
   SiPMSurface->SetModel(unified);
-  // G4cout << "SiPM optical surface defined" << G4endl;
+  G4cout << "SiPM optical surface defined" << G4endl;
 
-  // G4cout << "defining SiPM properties" << G4endl;
+  G4cout << "defining SiPM properties" << G4endl;
   auto SiPM_MPT = new G4MaterialPropertiesTable();
   // G4double SiPM_EFFICIENCY = 0.5;
   G4double SiPMEnergy[] = {
@@ -202,7 +265,7 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   SiPM_MPT->AddProperty("EFFICIENCY", SiPMEnergy, SiPMEfficiency, 2);
   SiPM_MPT->AddProperty("REFLECTIVITY", SiPMEnergy, SiPMReflectivity, 2);
   SiPMSurface->SetMaterialPropertiesTable(SiPM_MPT);
-  // G4cout << "SiPM properties defined" << G4endl;
+  G4cout << "SiPM properties defined" << G4endl;
 
 
   auto  white = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0)); // white
@@ -217,12 +280,12 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   SiPMLV->SetVisAttributes(red);
   claddingLV->SetVisAttributes(green);
 
-  // G4cout << "defining scint material and properties" << G4endl;
+  G4cout << "defining scint material and properties" << G4endl;
   G4Material* scintMat = nist->FindOrBuildMaterial("G4_CESIUM_IODIDE");
 
   G4MaterialPropertiesTable* CsI_MPT = new G4MaterialPropertiesTable();
 
-  // G4cout << "defining refractive index" << G4endl;
+  G4cout << "defining refractive index" << G4endl;
   //G4double rindex = 1.79;
   G4double refractivityEnergy[] = {
     1.0 * eV, 
@@ -232,12 +295,12 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
     1.79,
     1.79
   };
-  // G4cout << "refractive index defined" << G4endl;
-  // G4cout << "defining light yield" << G4endl;
+  G4cout << "refractive index defined" << G4endl;
+  G4cout << "defining light yield" << G4endl;
   G4double scintillationYield = 54000./MeV;
   G4double decayTime = 1000.*ns;
 
-  // G4cout << "process emission spectrum data" << G4endl;
+  G4cout << "process emission spectrum data" << G4endl;
   std::vector<G4double> photonEnergy;
   std::vector<G4double> emission; 
   std::vector<std::pair<G4double, G4double>> emissionData;
@@ -274,9 +337,9 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
     photonEnergy.push_back(point.first);
     emission.push_back(point.second);
   }
-  // G4cout << "emission spectrum data processed" << G4endl;
+  G4cout << "emission spectrum data processed" << G4endl;
 
-  // G4cout << "procesing absorption length data" << G4endl;
+  G4cout << "procesing absorption length data" << G4endl;
   std::vector<G4double> absorptionEnergy;
   std::vector<G4double> absorptionLength;
   std::vector<std::pair<G4double, G4double>> absorptionData;
@@ -315,38 +378,38 @@ for (const auto& point : absorptionData)
   absorptionLength.push_back(point.second);
 }
 
-  // G4cout << "absorption length data processed" << G4endl;
+  G4cout << "absorption length data processed" << G4endl;
 
   // CsI_MPT->AddProperty("RINDEX", energies, rindex, nEntries);
   // CsI_MPT->AddProperty("ABSLENGTH", energies, absorption, nEntries);
   // CsI_MPT->AddProperty("SCINTILLATIONCOMPONENT1", photonEnergy, scintSpectrum, nEntries);
-  // G4cout << "adding CsI optical properties" << G4endl;
-  // G4cout << "Adding RINDEX..." << G4endl;
+  G4cout << "adding CsI optical properties" << G4endl;
+  G4cout << "Adding RINDEX..." << G4endl;
   CsI_MPT->AddProperty("RINDEX", refractivityEnergy, rindex, 2);
-  // G4cout << "Adding SCINTILLATIONYIELD..." << G4endl;
+  G4cout << "Adding SCINTILLATIONYIELD..." << G4endl;
   CsI_MPT->AddConstProperty("SCINTILLATIONYIELD", scintillationYield);
-  // G4cout << "Adding TIMECONSTANT..." << G4endl;
+  G4cout << "Adding TIMECONSTANT..." << G4endl;
   CsI_MPT->AddConstProperty("SCINTILLATIONTIMECONSTANT1", decayTime);
-  // G4cout << "Adding ABSLENGTH..." << G4endl;
+  G4cout << "Adding ABSLENGTH..." << G4endl;
   for (size_t i = 0; i < absorptionEnergy.size(); ++i)
   {
-    // G4cout << i
-           // << "  E = " << absorptionEnergy[i] / eV << " eV"
-           // << "  L = " << absorptionLength[i] / mm << " mm"
-           // << G4endl;
+    G4cout << i
+           << "  E = " << absorptionEnergy[i] / eV << " eV"
+           << "  L = " << absorptionLength[i] / mm << " mm"
+           << G4endl;
   }
-  // G4cout << "Energy size: " << absorptionEnergy.size() << G4endl;
-  // G4cout << "Length size: " << absorptionLength.size() << G4endl;
+  G4cout << "Energy size: " << absorptionEnergy.size() << G4endl;
+  G4cout << "Length size: " << absorptionLength.size() << G4endl;
   CsI_MPT->AddProperty("ABSLENGTH", absorptionEnergy.data(), absorptionLength.data(), absorptionEnergy.size());
-  // G4cout << "Adding SCINTILLATIONCOMPONENT1..." << G4endl;
+  G4cout << "Adding SCINTILLATIONCOMPONENT1..." << G4endl;
   CsI_MPT->AddProperty("SCINTILLATIONCOMPONENT1", photonEnergy.data(), emission.data(), photonEnergy.size());
-  // G4cout << "Adding SCINTILLATIONYIELD1..." << G4endl;
+  G4cout << "Adding SCINTILLATIONYIELD1..." << G4endl;
   CsI_MPT->AddConstProperty("SCINTILLATIONYIELD1", 1.0);
-  // G4cout << "Adding RESOLUTIONSCALE..." << G4endl;
+  G4cout << "Adding RESOLUTIONSCALE..." << G4endl;
   CsI_MPT->AddConstProperty("RESOLUTIONSCALE", 1.0);
 
   scintMat->SetMaterialPropertiesTable(CsI_MPT);
-  // G4cout << "Scint material and properties defined" << G4endl;
+  G4cout << "Scint material and properties defined" << G4endl;
 
   G4ThreeVector scintPos = G4ThreeVector(0, 0, 0*cm);
 
@@ -354,7 +417,7 @@ for (const auto& point : absorptionData)
       "scint",
       scintWidth/2, // half width in x
       scintHeight/2, // half width in y
-      scintLength/2     // half length in z
+      scintLength/2     // half length in z 
     );
 
   G4LogicalVolume * scintLV = new G4LogicalVolume(
@@ -363,12 +426,25 @@ for (const auto& point : absorptionData)
       "scint"     // name
     ) ;
 
+    G4Box * opticalGreaseSolid = new G4Box(
+      "opticalGrease",
+      greaseWidth/2, // half width in x
+      greaseHeight/2, // half width in y
+      greaseLength/2     // half length in z
+    ); 
+
+    G4LogicalVolume * opticalGreaseLV = new G4LogicalVolume(
+      opticalGreaseSolid, // its solid
+      opticalGrease,   // its material
+      "opticalGrease"     // name
+    ) ;
+
     scintLV->SetVisAttributes(blue);
     
   //auto activeSolid = new G4Box("Active", activeSide/2, activeSide/2, activeSide/2);
   //auto activeLV = new G4LogicalVolume(activeSolid, scintMat, "ActiveLV");
 
-  // G4cout << "placing scint PV" << G4endl;
+  G4cout << "placing scint PV" << G4endl;
   auto scintillatorPV = new G4PVPlacement(0,                       //no rotation
                     scintPos,                    //at position
                     scintLV,             //its logical volume
@@ -377,29 +453,31 @@ for (const auto& point : absorptionData)
                     false,                   //no boolean operation
                     0,                       //copy number
                     checkOverlaps);          //overlaps checking
-  // G4cout << "scint PV placed" << G4endl;
+  G4cout << "scint PV placed" << G4endl;
    
   G4double offset = crystalSize/2 + reflectorThickness/2;
-
-  // G4cout << "placing reflector and SiPM PVs" << G4endl;
+  G4double greaseOffset = crystalSize/2 + greaseHeight/2;
+  G4double SiPMoffset = crystalSize/2 + greaseHeight + siPMThickness/2;
+  G4cout << "placing reflector and SiPM PVs" << G4endl;
   auto sideReflectorPV1 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(-offset, 0, 0), SideReflectorLV1, "SideReflector1", logicWorld, false, 0, checkOverlaps);
   auto sideReflectorPV2 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(offset, 0, 0), SideReflectorLV2, "SideReflector2", logicWorld, false, 0, checkOverlaps);
   auto sideReflectorPV3 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, -offset, 0), SideReflectorLV3, "SideReflector3", logicWorld, false, 0, checkOverlaps);
   auto topReflectorPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, offset), TopReflectorLV, "TopReflector", logicWorld, false, 0, checkOverlaps);
   auto bottomReflectorPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, -offset), BottomReflectorLV, "BottomReflector", logicWorld, false, 0, checkOverlaps);
-  auto siPMPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, offset, 0), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
-  // G4cout << "reflector and SiPM PVs placed" << G4endl;
+  auto siPMPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, SiPMoffset, 0), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
+  auto opticalGreasePV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, greaseOffset, 0), opticalGreaseLV, "OpticalGrease", logicWorld, false, 0, checkOverlaps);
+  G4cout << "reflector and SiPM PVs placed" << G4endl;
 
   auto claddingPV = new G4PVPlacement(nullptr, scintPos, claddingLV, "Cladding", logicWorld, false, 0, checkOverlaps);
 
-  // G4cout << "creating reflector and SiPM logical border surfaces" << G4endl;
+  G4cout << "creating reflector and SiPM logical border surfaces" << G4endl;
   new G4LogicalBorderSurface("SideReflectorSurface1", scintillatorPV, sideReflectorPV1, reflectorSurface);
   new G4LogicalBorderSurface("SideReflectorSurface2", scintillatorPV, sideReflectorPV2, reflectorSurface);
   new G4LogicalBorderSurface("SideReflectorSurface3", scintillatorPV, sideReflectorPV3, reflectorSurface);
   new G4LogicalBorderSurface("TopReflectorSurface", scintillatorPV, topReflectorPV, reflectorSurface);
   new G4LogicalBorderSurface("BottomReflectorSurface", scintillatorPV, bottomReflectorPV, reflectorSurface);
-  new G4LogicalBorderSurface("SiPMSurface", scintillatorPV, siPMPV, SiPMSurface);
-  // G4cout << "reflector and SiPM logical border surfaces placed" << G4endl;
+  new G4LogicalBorderSurface("SiPMSurface", opticalGreasePV, siPMPV, SiPMSurface);  
+  G4cout << "reflector and SiPM logical border surfaces placed" << G4endl;
 
 
 
