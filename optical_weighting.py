@@ -190,7 +190,7 @@ sigma_additional = np.sqrt(
 
 smeared_energy = np.random.normal(
     reconstructed_energy,
-    sigma_additional
+    sigma_additional)
 
 print("\nNumber of events:", len(reconstructed_energy))
 print("Minimum:", np.min(reconstructed_energy))
