@@ -5,7 +5,7 @@ x_coords = np.linspace(-4.999, 4.999, 10)
 y_coords = np.linspace(-4.999, 4.999, 10)
 z_coords = np.linspace(-4.999, 4.999, 10)
 
-n_photons = 50000
+n_photons = 100000
 
 csv_headers = ["run_id", "x_mm", "y_mm", "z_mm"]
 
