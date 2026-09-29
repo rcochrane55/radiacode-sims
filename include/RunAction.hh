@@ -55,8 +55,7 @@ class RunAction : public G4UserRunAction
     }
 
   private:
-    G4int fDetectedPhotons = 0;
-    std::ofstream fCSVFile;
+    G4Accumulable<G4int> fDetectedPhotons{0};
 };
 
 #endif
