@@ -582,7 +582,7 @@ for (const auto& point : absorptionData)
    
   G4double offset = crystalSize/2 + reflectorThickness/2;
   G4double greaseOffset = crystalSize/2 + greaseHeight/2;
-  G4double SiPMoffset = crystalSize/2 + greaseHeight + siPMThickness/2;
+  G4double SiPMoffset = crystalSize/2 + greaseHeight + windowThickness + siPMThickness/2;
   G4double ESROffset = crystalSize/2 + esrThickness/2;
   G4double windowOffset = crystalSize/2 + greaseHeight + windowThickness/2;
   G4cout << "placing reflector and SiPM PVs" << G4endl;
@@ -591,9 +591,23 @@ for (const auto& point : absorptionData)
   auto sideReflectorPV3 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, -offset, 0), SideReflectorLV3, "SideReflector3", logicWorld, false, 0, checkOverlaps);
   auto topReflectorPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, offset), TopReflectorLV, "TopReflector", logicWorld, false, 0, checkOverlaps);
   auto bottomReflectorPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, -offset), BottomReflectorLV, "BottomReflector", logicWorld, false, 0, checkOverlaps);
-  auto siPMPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, SiPMoffset, 0.1 * cm), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
-  auto opticalGreasePV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, greaseOffset, 0.1 * cm), opticalGreaseLV, "OpticalGrease", logicWorld, false, 0, checkOverlaps);
+  auto siPMPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, SiPMoffset, 0.5 * mm), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
+  auto opticalGreasePV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, greaseOffset, 0.5 * mm), opticalGreaseLV, "OpticalGrease", logicWorld, false, 0, checkOverlaps);
   auto ESRPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, ESROffset, 0), ESRLV, "ESRFilm", logicWorld, false, 0, checkOverlaps);
+  auto SiPMWindowPV = new G4PVPlacement(
+    nullptr,
+    G4ThreeVector(
+        0,
+        windowOffset,
+        0.5 * mm
+    ),
+    SiPMWindowLV,
+    "SiPMWindowPV",
+    logicWorld,
+    false,
+    0,
+    checkOverlaps
+);
   G4cout << "reflector and SiPM PVs placed" << G4endl;
 
   //auto claddingPV = new G4PVPlacement(nullptr, scintPos, claddingLV, "Cladding", logicWorld, false, 0, checkOverlaps);
@@ -604,7 +618,7 @@ for (const auto& point : absorptionData)
   new G4LogicalBorderSurface("SideReflectorSurface3", scintillatorPV, sideReflectorPV3, reflectorSurface);
   new G4LogicalBorderSurface("TopReflectorSurface", scintillatorPV, topReflectorPV, reflectorSurface);
   new G4LogicalBorderSurface("BottomReflectorSurface", scintillatorPV, bottomReflectorPV, reflectorSurface);
-  new G4LogicalBorderSurface("SiPMSurface", opticalGreasePV, siPMPV, SiPMSurface);  
+  new G4LogicalBorderSurface("SiPMSurface", SiPMWindowPV, siPMPV, SiPMSurface);  
   new G4LogicalBorderSurface("ESRSurface", scintillatorPV, ESRPV, ESRSurface);
   G4cout << "reflector and SiPM logical border surfaces placed" << G4endl;
 
