@@ -118,6 +118,7 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   TiO2->AddElement(O, 2);
 
   G4double crystalSize = 1.0*cm;
+  G4double siPMPackageSide = 0.7 * cm;
   G4double siPMSide = 0.6*cm;
   G4double siPMThickness = 0.03*cm;
   G4double reflectorThickness = 0.04*cm;
@@ -282,11 +283,82 @@ G4cout << "Defining grease dimensions" << G4endl;
   G4double esrThickness = 0.065 * mm;
 
   auto ESRFull = new G4Box("ESRFull", 5.0 * mm, esrThickness/2.0, 5.0 * mm);
-  auto SiPMCutout = new G4Box("SiPMCutout", 3.0 * mm, esrThickness, 3.0 * mm);
-  G4ThreeVector cutoutOffset(0.0 * mm, 0.0 * mm, 1.0 * mm);
+  auto SiPMCutout = new G4Box("SiPMCutout", 3.5 * mm, esrThickness, 3.5 * mm);
+  G4ThreeVector cutoutOffset(0.0 * mm, 0.0 * mm, 0.5 * mm);
   auto ESRSolid = new G4SubtractionSolid("ESRSolid", ESRFull, SiPMCutout, nullptr, cutoutOffset);
   auto ESRLV = new G4LogicalVolume(ESRSolid, ESRMaterial, "ESRLV");
 
+  // set up window solid and material
+  // Approximate SiPM encapsulant/window
+G4double windowThickness = 0.3 * mm;
+
+//define window solid
+auto windowSolid = new G4Box(
+    "SiPMWindow",
+    3.5 * mm,
+    windowThickness / 2.0,
+    3.5 * mm
+);
+
+//define window material
+auto SiPMWindowMat = new G4Material(
+    "SiPMWindowMaterial",
+    1.2 * g/cm3,
+    3
+);
+
+//window material optical properties
+SiPMWindowMat->AddElement(
+    nist->FindOrBuildElement("C"), 21
+);
+SiPMWindowMat->AddElement(
+    nist->FindOrBuildElement("H"), 25
+);
+SiPMWindowMat->AddElement(
+    nist->FindOrBuildElement("O"), 5
+);
+
+const G4int nWindow = 2;
+
+G4double windowEnergy[nWindow] = {
+    1.0 * eV,
+    4.5 * eV
+};
+
+G4double windowRIndex[nWindow] = {
+    1.59,
+    1.59
+};
+
+G4double windowAbsLength[nWindow] = {
+    10.0 * m,
+    10.0 * m
+};
+
+auto windowMPT = new G4MaterialPropertiesTable();
+
+windowMPT->AddProperty(
+    "RINDEX",
+    windowEnergy,
+    windowRIndex,
+    nWindow
+);
+
+windowMPT->AddProperty(
+    "ABSLENGTH",
+    windowEnergy,
+    windowAbsLength,
+    nWindow
+);
+
+SiPMWindowMat->SetMaterialPropertiesTable(windowMPT);
+
+//create window LV
+auto windowLV = new G4LogicalVolume(
+    windowSolid,
+    SiPMWindowMat,
+    "SiPMWindowLV"
+);
 
   G4cout << "defining SiPM solid and LV" << G4endl;
   auto SiPMSolid = new G4Box("SiPM", siPMSide/2, siPMThickness/2,siPMSide/2);
@@ -512,6 +584,7 @@ for (const auto& point : absorptionData)
   G4double greaseOffset = crystalSize/2 + greaseHeight/2;
   G4double SiPMoffset = crystalSize/2 + greaseHeight + siPMThickness/2;
   G4double ESROffset = crystalSize/2 + esrThickness/2;
+  G4double windowOffset = crystalSize/2 + greaseHeight + windowThickness/2;
   G4cout << "placing reflector and SiPM PVs" << G4endl;
   auto sideReflectorPV1 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(-offset, 0, 0), SideReflectorLV1, "SideReflector1", logicWorld, false, 0, checkOverlaps);
   auto sideReflectorPV2 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(offset, 0, 0), SideReflectorLV2, "SideReflector2", logicWorld, false, 0, checkOverlaps);
