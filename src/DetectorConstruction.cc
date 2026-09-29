@@ -226,7 +226,7 @@ G4cout << "Defining grease dimensions" << G4endl;
     0.95
   };
   auto reflectorSurface = new G4OpticalSurface("ReflectorSurface");
-  reflectorSurface->SetType(dielectric_dielectric);
+  reflectorSurface->SetType(dielectric_metal);
   reflectorSurface->SetFinish(polished);
   reflectorSurface->SetModel(unified);
 
