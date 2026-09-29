@@ -32,55 +32,46 @@
 
 #include "G4RunManager.hh"
 #include "G4Run.hh"
+#include "G4AccumulableManager.hh"
+#include <fstream>
 
 RunAction::RunAction()
-: G4UserRunAction(), fDetectedPhotons(0)
+: G4UserRunAction()
 {
-    G4cout << "RunAction created at " << this << G4endl;
+    G4Accumulable manager::Instance()->Register(fDetectedPhotons);
+    if (IsMaster())
+    {
+        std::ofstream csvFile("optical_pdes.csv");
+        csvFile << "run_id,n_emitted,n_detected,efficiency\n";
+    }
 }
 
 RunAction::~RunAction()
-{
-    if (fCSVFile.is_open())
-        fCSVFile.close();
-}
+{}
 
 void RunAction::BeginOfRunAction(const G4Run*)
 { 
-  // inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
-  fDetectedPhotons = 0;
-  if (!IsMaster() && !fCSVFile.is_open())
-  {
-    fCSVFile.open("optical_pdes.csv", std::ios::out);
-    fCSVFile << "run_id,n_emitted,n_detected,efficiency\n";
-  }
+G4AccumulableManager::Instance()->Reset();
 }
 
 void RunAction::EndOfRunAction(const G4Run* run)
 {
-  if (IsMaster())
-      return;
-
   G4int emittedPhotons = run->GetNumberOfEvent();
-
   if (emittedPhotons == 0)
-    return;
-
-  G4double efficiency = static_cast<G4double>(fDetectedPhotons)/static_cast<G4double>(emittedPhotons);
-
-  if (!IsMaster())
+      return;
+  G4AccumulableManager::Instance()->Merge();
+  if (IsMaster())
   {
-      fCSVFile
-            << run->GetRunID() << ","
-            << emittedPhotons << ","
-            << fDetectedPhotons << ","
-            << efficiency << "\n";
-  }
-  
-
-  fCSVFile.flush();
-
+      G4int detectedPhotons = fDetectedPhotons.GetValue();
+      G4double efficiency = static_cast<G4double>(detectedPhotons)/static_cast<G4double>(emittedPhotons);
+      std::ofstream csvFile("optical_pdes.csv", std::ios::app);
+      csvFile
+          << run->GetRunID() << ","
+          << emittedPhotons << ","
+          << detectedPhotons << ","
+          << efficiency << "\n";
+      csvFile.close();
   // G4cout 
     // << G4endl
     // << "Optical map result:" << G4endl
