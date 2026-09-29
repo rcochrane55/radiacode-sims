@@ -188,15 +188,15 @@ G4cout << "Defining grease dimensions" << G4endl;
 
 // define pos, mat, solids for cladding
   G4double reflectorOuter = 1*cm + 2.0*reflectorThickness;
-  G4double claddingOuter = (reflectorOuter + 2.0*claddingThickness);
+  //G4double claddingOuter = (reflectorOuter + 2.0*claddingThickness);
 
-  auto claddingOuterSolid = new G4Box("CladdingOuter", claddingOuter/2, claddingOuter/2, claddingOuter/2);
-  auto claddingInnerSolid = new G4Box("CladdingInner", reflectorOuter/2, reflectorOuter/2, reflectorOuter/2);
-  auto claddingSolid = new G4SubtractionSolid("Cladding", claddingOuterSolid, claddingInnerSolid);
+  //auto claddingOuterSolid = new G4Box("CladdingOuter", claddingOuter/2, claddingOuter/2, claddingOuter/2);
+  //auto claddingInnerSolid = new G4Box("CladdingInner", reflectorOuter/2, reflectorOuter/2, reflectorOuter/2);
+  //auto claddingSolid = new G4SubtractionSolid("Cladding", claddingOuterSolid, claddingInnerSolid);
 
-  G4Material* claddingMat = nist->FindOrBuildMaterial("G4_POLYETHYLENE");
+  //G4Material* claddingMat = nist->FindOrBuildMaterial("G4_POLYETHYLENE");
 
-  auto claddingLV = new G4LogicalVolume(claddingSolid, claddingMat, "CladdingLV");
+  //auto claddingLV = new G4LogicalVolume(claddingSolid, claddingMat, "CladdingLV");
 
 // define position and solids for reflector
   G4cout << "defining reflector solids" << G4endl;
@@ -215,8 +215,7 @@ G4cout << "Defining grease dimensions" << G4endl;
   auto BottomReflectorLV = new G4LogicalVolume(bottomReflectorSolid, TiO2, "BottomReflectorLogical");
   G4cout << "reflector LVs created" << G4endl;
 
-  G4cout << "defining reflector properties" << G4endl;
-  G4double REFLECTIVITY = 0.947;
+  G4cout << "defining TiO2 reflector properties" << G4endl;
   G4double reflectorEnergy[] = {
     1.0 * eV, 
     4.5 * eV
@@ -233,7 +232,61 @@ G4cout << "Defining grease dimensions" << G4endl;
   G4MaterialPropertiesTable* reflectorMPT = new G4MaterialPropertiesTable();
   reflectorMPT->AddProperty("REFLECTIVITY", reflectorEnergy, reflectivity, 2);
   reflectorSurface->SetMaterialPropertiesTable(reflectorMPT); 
-  G4cout << "reflector properties defined" << G4endl;
+  G4cout << "TiO2 reflector properties defined" << G4endl;
+
+  G4cout << "defining ESR film reflector properties" << G4endl;
+  G4Material* ESRMaterial = nist->FindOrBuildMaterial("G4_MYLAR");
+  const G4int nESR = 2;
+
+  G4double ESRPhotonEnergy[nESR] = {
+      1.0 * eV,
+      4.5 * eV
+  };
+
+  G4double ESRReflectivity[nESR] = {
+      0.98,
+      0.98
+  };
+
+  G4double ESREfficiency[nESR] = {
+      0.0,
+      0.0
+  };
+
+  auto ESR_MPT = new G4MaterialPropertiesTable();
+
+  ESR_MPT->AddProperty(
+      "REFLECTIVITY",
+      ESRPhotonEnergy,
+      ESRReflectivity,
+      nESR
+  );
+
+  ESR_MPT->AddProperty(
+      "EFFICIENCY",
+      ESRPhotonEnergy,
+      ESREfficiency,
+      nESR
+  );
+
+  auto ESRSurface = new G4OpticalSurface("ESRSurface");
+
+  ESRSurface->SetType(dielectric_metal);
+  ESRSurface->SetModel(unified);
+  ESRSurface->SetFinish(polished);
+
+  ESRSurface->SetMaterialPropertiesTable(ESR_MPT);
+  G4cout << "ESR film reflector properties defined" << G4endl;
+
+  G4cout << "defining ESR film solid and LV" << G4endl;
+  G4double esrThickness = 0.065 * mm;
+
+  auto ESRFull = new G4Box("ESRFull", 5.0 * mm, esrThickness/2.0, 5.0 * mm);
+  auto SiPMCutout = new G4Box("SiPMCutout", 3.0 * mm, esrThickness, 3.0 * mm);
+  G4ThreeVector cutoutOffset(0.0 * mm, 0.0 * mm, 1.0 * mm);
+  auto ESRSolid = new G4SubtractionSolid("ESRSolid", ESRFull, SiPMCutout, nullptr, cutoutOffset);
+  auto ESRLV = new G4LogicalVolume(ESRSolid, ESRMaterial, "ESRLV");
+
 
   G4cout << "defining SiPM solid and LV" << G4endl;
   auto SiPMSolid = new G4Box("SiPM", siPMSide/2, siPMThickness/2,siPMSide/2);
@@ -278,7 +331,7 @@ G4cout << "Defining grease dimensions" << G4endl;
   TopReflectorLV->SetVisAttributes(white);
   BottomReflectorLV->SetVisAttributes(white);
   SiPMLV->SetVisAttributes(red);
-  claddingLV->SetVisAttributes(green);
+  //claddingLV->SetVisAttributes(green);
 
   G4cout << "defining scint material and properties" << G4endl;
   G4Material* scintMat = nist->FindOrBuildMaterial("G4_CESIUM_IODIDE");
@@ -458,17 +511,19 @@ for (const auto& point : absorptionData)
   G4double offset = crystalSize/2 + reflectorThickness/2;
   G4double greaseOffset = crystalSize/2 + greaseHeight/2;
   G4double SiPMoffset = crystalSize/2 + greaseHeight + siPMThickness/2;
+  G4double ESROffset = crystalSize/2 + esrThickness/2;
   G4cout << "placing reflector and SiPM PVs" << G4endl;
   auto sideReflectorPV1 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(-offset, 0, 0), SideReflectorLV1, "SideReflector1", logicWorld, false, 0, checkOverlaps);
   auto sideReflectorPV2 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(offset, 0, 0), SideReflectorLV2, "SideReflector2", logicWorld, false, 0, checkOverlaps);
   auto sideReflectorPV3 = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, -offset, 0), SideReflectorLV3, "SideReflector3", logicWorld, false, 0, checkOverlaps);
   auto topReflectorPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, offset), TopReflectorLV, "TopReflector", logicWorld, false, 0, checkOverlaps);
   auto bottomReflectorPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, 0, -offset), BottomReflectorLV, "BottomReflector", logicWorld, false, 0, checkOverlaps);
-  auto siPMPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, SiPMoffset, 0), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
-  auto opticalGreasePV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, greaseOffset, 0), opticalGreaseLV, "OpticalGrease", logicWorld, false, 0, checkOverlaps);
+  auto siPMPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, SiPMoffset, 0.1 * cm), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
+  auto opticalGreasePV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, greaseOffset, 0.1 * cm), opticalGreaseLV, "OpticalGrease", logicWorld, false, 0, checkOverlaps);
+  auto ESRPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, ESROffset, 0), ESRLV, "ESRFilm", logicWorld, false, 0, checkOverlaps);
   G4cout << "reflector and SiPM PVs placed" << G4endl;
 
-  auto claddingPV = new G4PVPlacement(nullptr, scintPos, claddingLV, "Cladding", logicWorld, false, 0, checkOverlaps);
+  //auto claddingPV = new G4PVPlacement(nullptr, scintPos, claddingLV, "Cladding", logicWorld, false, 0, checkOverlaps);
 
   G4cout << "creating reflector and SiPM logical border surfaces" << G4endl;
   new G4LogicalBorderSurface("SideReflectorSurface1", scintillatorPV, sideReflectorPV1, reflectorSurface);
@@ -477,6 +532,7 @@ for (const auto& point : absorptionData)
   new G4LogicalBorderSurface("TopReflectorSurface", scintillatorPV, topReflectorPV, reflectorSurface);
   new G4LogicalBorderSurface("BottomReflectorSurface", scintillatorPV, bottomReflectorPV, reflectorSurface);
   new G4LogicalBorderSurface("SiPMSurface", opticalGreasePV, siPMPV, SiPMSurface);  
+  new G4LogicalBorderSurface("ESRSurface", scintillatorPV, ESRPV, ESRSurface);
   G4cout << "reflector and SiPM logical border surfaces placed" << G4endl;
 
 
