@@ -118,9 +118,19 @@ if np.sum(full_energy) > 0:
     print("Maximum optical weighting factor:", np.max(optical_factor))
 
 reconstructed_energy = ak.to_numpy(weighted_energy / eta_center) * 1000
-reconstructed_energy *= 1.56146314
 
-# Fit optical FWHM from calibrated, weighted, unsmeared spectrum
+hist, edges = np.histogram(reconstructed_energy[reconstructed_energy > 0], bins=1024, range=(0,3000))
+centers = (edges[:-1] + edges[1:]) / 2
+plt.step(centers, hist, where="mid")
+plt.xlabel("Energy (keV)")
+plt.ylabel("Counts")
+plt.title("Uncalibrated Reconstructed Spectrum")
+plt.xlim(0, 3000)
+plt.show()
+
+#reconstructed_energy *= 1.56146314
+
+# Fit optical FWHM from uncalibrated, weighted, unsmeared spectrum
 unsmeared_energy = reconstructed_energy[reconstructed_energy > 0]
 
 unsmeared_hist, unsmeared_edges = np.histogram(
@@ -151,7 +161,7 @@ fitter = bq.Fitter(
     y=y,
     y_unc=y_unc,
     dx=dx,
-    roi=(1340, 1600)
+    roi=(1000, 1200)
 )
 
 fitter.fit(backend="lmfit")
@@ -160,7 +170,7 @@ sigma = fitter.param_val("gauss0_sigma")
 peak_area = fitter.param_val("gauss0_amp")
 optical_fwhm = fitter.param_val("gauss0_fwhm")
 
-print("\nBecquerel K-40 peak fit:")
+print("\nWeighted Uncalibrated K-40 peak fit:")
 print("Centroid:", centroid, "keV")
 print("Sigma:", sigma, "keV")
 print("Peak area:", peak_area, "counts")
@@ -171,20 +181,22 @@ fitter.custom_plot()
 plt.tight_layout()
 plt.show()
 
+cal_factor = 1460.8/centroid
+reconstructed_energy *= cal_factor
+optical_fwhm *= cal_factor
+
 # Detector energy-resolution broadening
 a = -1252.39
 b = 8.390725
 c = -0.00205
 
-predicted_fwhm = np.sqrt(
-    a + b * reconstructed_energy + c * reconstructed_energy**2
-)
+fwhm_squared = (a + b * reconstructed_energy + c * reconstructed_energy**2)
+predicted_fwhm = np.sqrt(np.maximum(0, fwhm_squared))
 
 sigma_predicted = predicted_fwhm / 2.355
 sigma_optical = optical_fwhm / 2.355
 
 sigma_additional = np.sqrt(
-
     np.maximum(0, sigma_predicted**2 - sigma_optical**2)
 )
 
@@ -257,6 +269,7 @@ centroid = fitter.param_val("gauss0_mu")
 sigma = fitter.param_val("gauss0_sigma")
 peak_area = fitter.param_val("gauss0_amp")
 optical_fwhm = fitter.param_val("gauss0_fwhm")
+print("Weighted + Calibrated + Smeared K-40 Peak Fit:")
 print("Centroid:", centroid, "keV")
 print("Sigma:", sigma, "keV")
 print("Peak area:", peak_area, "counts")
