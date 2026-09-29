@@ -1,9 +1,9 @@
 import numpy as np
 import csv
 
-x_coords = np.linspace(-4.5, 4.5, 7)
-y_coords = np.linspace(-4.5, 4.5, 7)
-z_coords = np.linspace(-4.5, 4.5, 7)
+x_coords = np.linspace(-4.999, 4.999, 10)
+y_coords = np.linspace(-4.999, 4.999, 10)
+z_coords = np.linspace(-4.999, 4.999, 10)
 
 n_photons = 50000
 
