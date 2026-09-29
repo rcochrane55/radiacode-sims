@@ -38,7 +38,7 @@
 RunAction::RunAction()
 : G4UserRunAction()
 {
-    G4Accumulable manager::Instance()->Register(fDetectedPhotons);
+    G4AccumulableManager::Instance()->Register(fDetectedPhotons);
     if (IsMaster())
     {
         std::ofstream csvFile("optical_pdes.csv");
@@ -72,6 +72,7 @@ void RunAction::EndOfRunAction(const G4Run* run)
           << detectedPhotons << ","
           << efficiency << "\n";
       csvFile.close();
+   }
   // G4cout 
     // << G4endl
     // << "Optical map result:" << G4endl
