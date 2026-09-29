@@ -12,7 +12,7 @@ csv_headers = ["run_id", "x_mm", "y_mm", "z_mm"]
 rows = []
 
 with open("generate_map.mac", "w") as f:
-    f.write("/run/numberOfThreads 1\n")
+    f.write("/run/numberOfThreads 16\n")
     f.write("/run/verbose 2\n")
     f.write("/run/initialize\n\n")
     f.write("/gps/particle opticalphoton\n\n")
