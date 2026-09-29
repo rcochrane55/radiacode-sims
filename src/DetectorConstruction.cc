@@ -182,8 +182,8 @@ greaseMPT->AddProperty(
 opticalGrease->SetMaterialPropertiesTable(greaseMPT); 
 
 G4cout << "Defining grease dimensions" << G4endl;
-  G4double greaseLength = 0.6*cm ;
-  G4double greaseWidth = 0.6*cm ;
+  G4double greaseLength = 0.7*cm ;
+  G4double greaseWidth = 0.7*cm ;
   G4double greaseHeight = 0.01*cm ;
   G4cout << "grease defined" << G4endl;
 
