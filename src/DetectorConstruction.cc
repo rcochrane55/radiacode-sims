@@ -594,20 +594,7 @@ for (const auto& point : absorptionData)
   auto siPMPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, SiPMoffset, 0.5 * mm), SiPMLV, "SiPM", logicWorld, false, 0, checkOverlaps);
   auto opticalGreasePV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, greaseOffset, 0.5 * mm), opticalGreaseLV, "OpticalGrease", logicWorld, false, 0, checkOverlaps);
   auto ESRPV = new G4PVPlacement(nullptr, scintPos + G4ThreeVector(0, ESROffset, 0), ESRLV, "ESRFilm", logicWorld, false, 0, checkOverlaps);
-  auto SiPMWindowPV = new G4PVPlacement(
-    nullptr,
-    G4ThreeVector(
-        0,
-        windowOffset,
-        0.5 * mm
-    ),
-    SiPMWindowLV,
-    "SiPMWindowPV",
-    logicWorld,
-    false,
-    0,
-    checkOverlaps
-);
+  auto SiPMWindowPV = new G4PVPlacement(nullptr, G4ThreeVector(0, windowOffset, 0.5 * mm), windowLV, "SiPMWindowPV", logicWorld, false, 0, checkOverlaps);
   G4cout << "reflector and SiPM PVs placed" << G4endl;
 
   //auto claddingPV = new G4PVPlacement(nullptr, scintPos, claddingLV, "Cladding", logicWorld, false, 0, checkOverlaps);
