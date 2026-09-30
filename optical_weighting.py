@@ -263,7 +263,7 @@ fitter = bq.Fitter(
     y=y,
     y_unc=y_unc,
     dx=dx,
-    roi=(1340, 1600)
+    roi=(1360.8, 1560.8)
 )
 fitter.fit(backend="lmfit")
 centroid = fitter.param_val("gauss0_mu")
