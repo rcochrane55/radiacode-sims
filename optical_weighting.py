@@ -161,7 +161,7 @@ fitter = bq.Fitter(
     y=y,
     y_unc=y_unc,
     dx=dx,
-    roi=(1000, 1200)
+    roi=(950, 1050)
 )
 
 fitter.fit(backend="lmfit")
