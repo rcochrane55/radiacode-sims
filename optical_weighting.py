@@ -118,6 +118,7 @@ if np.sum(full_energy) > 0:
     print("Maximum optical weighting factor:", np.max(optical_factor))
 
 reconstructed_energy = ak.to_numpy(weighted_energy / eta_center) * 1000
+reconstructed_mean = np.mean(reconstructed_full) * 1000
 
 hist, edges = np.histogram(reconstructed_energy[reconstructed_energy > 0], bins=1024, range=(0,3000))
 centers = (edges[:-1] + edges[1:]) / 2
@@ -161,7 +162,7 @@ fitter = bq.Fitter(
     y=y,
     y_unc=y_unc,
     dx=dx,
-    roi=(950, 1050)
+    roi=(reconstructed_mean - 50, reconstructed_mean + 50)
 )
 
 fitter.fit(backend="lmfit")
