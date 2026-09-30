@@ -373,24 +373,31 @@ auto windowLV = new G4LogicalVolume(
   G4cout << "SiPM optical surface defined" << G4endl;
 
   G4cout << "defining SiPM properties" << G4endl;
-  auto SiPM_MPT = new G4MaterialPropertiesTable();
   // G4double SiPM_EFFICIENCY = 0.5;
-  G4double SiPMEnergy[] = {
-    1.0 * eV, 
-    4.5 * eV
-  };
-  G4double SiPMReflectivity[] = {
-    0.1,
-    0.1
-  };
-  G4double SiPMEfficiency[] = {
-    0.5,
-    0.5
-  };
-  SiPM_MPT->AddProperty("EFFICIENCY", SiPMEnergy, SiPMEfficiency, 2);
-  SiPM_MPT->AddProperty("REFLECTIVITY", SiPMEnergy, SiPMReflectivity, 2);
-  SiPMSurface->SetMaterialPropertiesTable(SiPM_MPT);
-  G4cout << "SiPM properties defined" << G4endl;
+  auto SiPM_MPT = new G4MaterialPropertiesTable();
+
+  std::ifstream SiPMFile("sipm_efficiency.csv");
+  std::vector<G4double> SiPMEnergy, SiPMEfficiency;
+  std::string SiPMLine;
+  std::getline(SiPMFile, SiPMLine);
+
+  while (std::getline(SiPMFile, SiPMLine)) {
+    std::stringstream ss(SiPMLine);
+    std::string e, eff;
+    if (std::getline(ss, e, ',') && std::getline(ss, eff, ',')) {
+      SiPMEnergy.push_back(std::stod(e) * eV);
+      SiPMEfficiency.push_back(std::stod(eff));
+    }
+  }
+  SiPMFile.close();
+
+G4double SiPMReflectivity[] = {0.1, 0.1};
+G4double ReflectivityEnergy[] = {1.0 * eV, 4.5 * eV};
+
+SiPM_MPT->AddProperty("EFFICIENCY", SiPMEnergy.data(), SiPMEfficiency.data(), SiPMEnergy.size());
+SiPM_MPT->AddProperty("REFLECTIVITY", ReflectivityEnergy, SiPMReflectivity, 2);
+SiPMSurface->SetMaterialPropertiesTable(SiPM_MPT);
+G4cout << "SiPM properties defined" << G4endl;
 
 
   auto  white = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0)); // white

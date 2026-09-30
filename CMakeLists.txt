@@ -51,6 +51,8 @@ set(marinelli_FILES
   emission_spectrum_data.csv
   create_macro.py
   merge_outputs.py
+  sipm_efficiency.csv
+  tio2_reflectivity.csv
   )
 
 foreach(_file ${marinelli_FILES})
