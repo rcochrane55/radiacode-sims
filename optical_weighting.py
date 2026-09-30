@@ -53,7 +53,7 @@ interpolator = RegularGridInterpolator(
     fill_value=0
 )
 
-eta_center = interpolator([[0.0, 4.95, 0.0]])[0]
+eta_center = interpolator([[0.0, 4.999, 0.5]])[0]
 print("Interpolated center efficiency:", eta_center)
 
 flat_x = ak.to_numpy(ak.flatten(stepX))
@@ -162,7 +162,7 @@ fitter = bq.Fitter(
     y=y,
     y_unc=y_unc,
     dx=dx,
-    roi=(reconstructed_mean - 50, reconstructed_mean + 50)
+    roi=(reconstructed_mean - 100, reconstructed_mean + 100)
 )
 
 fitter.fit(backend="lmfit")
