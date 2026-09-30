@@ -217,21 +217,27 @@ G4cout << "Defining grease dimensions" << G4endl;
   G4cout << "reflector LVs created" << G4endl;
 
   G4cout << "defining TiO2 reflector properties" << G4endl;
-  G4double reflectorEnergy[] = {
-    1.0 * eV, 
-    4.5 * eV
-  };
-  G4double reflectivity[] = {
-    0.95,
-    0.95
-  };
+  std::ifstream TiO2File("tio2_reflectivity.csv");
+  std::vector<G4double> TiO2Energy, TiO2Efficiency;
+  std::string TiO2Line;
+  std::getline(TiO2File, TiO2Line);
+
+  while (std::getline(TiO2File, TiO2Line)) {
+    std::stringstream ss(TiO2Line);
+    std::string e, eff;
+    if (std::getline(ss, e, ',') && std::getline(ss, eff, ',')) {
+      TiO2Energy.push_back(std::stod(e) * eV);
+      TiO2Efficiency.push_back(std::stod(eff));
+    }
+  }
+  TiO2File.close();
   auto reflectorSurface = new G4OpticalSurface("ReflectorSurface");
   reflectorSurface->SetType(dielectric_metal);
   reflectorSurface->SetFinish(polished);
   reflectorSurface->SetModel(unified);
 
   G4MaterialPropertiesTable* reflectorMPT = new G4MaterialPropertiesTable();
-  reflectorMPT->AddProperty("REFLECTIVITY", reflectorEnergy, reflectivity, 2);
+  reflectorMPT->AddProperty("REFLECTIVITY", TiO2Energy.data(), TiO2Efficiency.data(), TiO2Energy.size());
   reflectorSurface->SetMaterialPropertiesTable(reflectorMPT); 
   G4cout << "TiO2 reflector properties defined" << G4endl;
 
