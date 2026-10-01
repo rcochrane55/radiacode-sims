@@ -52,6 +52,7 @@ set(marinelli_SCRIPTS
   root2dat.py
   optical_weighting.py
   optical_response_map.csv
+  kcl_measurement.csv
   )
 
 foreach(_script ${marinelli_SCRIPTS})
