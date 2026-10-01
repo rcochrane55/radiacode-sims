@@ -44,12 +44,8 @@ target_link_libraries(marinelli ${Geant4_LIBRARIES})
 #
 set(marinelli_SCRIPTS
   init_vis.mac
-  analysis.py
   vis.mac
-  show_results.py
-  show_results.C
   run.mac
-  root2dat.py
   optical_weighting.py
   optical_response_map.csv
   kcl_measurement.csv
