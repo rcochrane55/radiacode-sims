@@ -1,0 +1,51 @@
+Full-energy events:
+Number: 18051
+Mean raw energy: 1460.4768265092364 keV
+Mean weighted energy: 73.24077956667024 keV
+Mean reconstructed energy: 1008.5724081063303 keV
+Mean optical weighting factor: 0.05014857904001754
+Minimum optical weighting factor: 0.03517076308908906
+Maximum optical weighting factor: 0.07270227854632684
+
+Weighted Uncalibrated K-40 peak fit:
+Centroid: 998.405890952403 keV
+Sigma: 16.679379300705225 keV
+Peak area: 10559.298958772244 counts
+Optical FWHM: 39.27693671597496 keV
+Optical FWHM: 3.933964840542734 %
+Unsmeared counts: 292238
+Smeared counts: 292238.00000000006
+
+Number of events: 100000000
+Minimum: 0.0
+Maximum: 2139.845798078432
+Mean: 1.710383535301206
+Non-zero events: 292238
+Unique values: 292239
+Highest bin: 221.19140625 keV
+Peak counts: 1488.0
+K-40 peak near 1460 keV: 1460.44921875 keV
+K-40 peak counts: 441.50846921113646
+
+Monte Carlo statistical uncertainty:
+Area = 10574.0 +/- 138.2
+68% CI: [10441.22304731 10715.42423581]
+
+Weighted + Calibrated + Smeared K-40 Peak Fit:
+Centroid: 1460.6437417268776 keV
+Sigma: 34.59456497648171 keV
+Peak area: 10576.989594622393 counts
+Optical FWHM: 81.46397505574477 keV
+Optical FWHM: 5.577265196743474 %
+Simulated K-40 peak efficiency: 0.00010576989594622393
+
+Measured K-40 peak analysis:
+Centroid: 1461.4256753836753
+Sigma: 34.989051731966114
+FWHM: 82.39292037505867
+Peak area: 21810.969840687652
+Live time: 531951.56
+Peak CPS: 0.04100179693182524
+Measured K-40 peak efficiency: 0.0001033423785498504
+Reference activity (Bq): 3837.106899
+Calculated Activity (Bq): 3749.0417301186467
