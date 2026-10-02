@@ -118,8 +118,8 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   TiO2->AddElement(O, 2);
 
   G4double crystalSize = 1.0*cm;
-  G4double siPMPackageSide = 0.7 * cm;
-  G4double siPMSide = 0.6*cm;
+  G4double siPMPackageSide = 0.4 * cm;
+  G4double siPMSide = 0.3*cm;
   G4double siPMThickness = 0.03*cm;
   G4double reflectorThickness = 0.04*cm;
   G4double claddingThickness = 0.16*cm;
@@ -182,8 +182,8 @@ greaseMPT->AddProperty(
 opticalGrease->SetMaterialPropertiesTable(greaseMPT); 
 
 G4cout << "Defining grease dimensions" << G4endl;
-  G4double greaseLength = 0.7*cm ;
-  G4double greaseWidth = 0.7*cm ;
+  G4double greaseLength = 0.4*cm ;
+  G4double greaseWidth = 0.4*cm ;
   G4double greaseHeight = 0.01*cm ;
   G4cout << "grease defined" << G4endl;
 
@@ -289,7 +289,7 @@ G4cout << "Defining grease dimensions" << G4endl;
   G4double esrThickness = 0.065 * mm;
 
   auto ESRFull = new G4Box("ESRFull", 5.0 * mm, esrThickness/2.0, 5.0 * mm);
-  auto SiPMCutout = new G4Box("SiPMCutout", 3.5 * mm, esrThickness, 3.5 * mm);
+  auto SiPMCutout = new G4Box("SiPMCutout", 2.0 * mm, esrThickness, 2.0 * mm);
   G4ThreeVector cutoutOffset(0.0 * mm, 0.0 * mm, 0.5 * mm);
   auto ESRSolid = new G4SubtractionSolid("ESRSolid", ESRFull, SiPMCutout, nullptr, cutoutOffset);
   auto ESRLV = new G4LogicalVolume(ESRSolid, ESRMaterial, "ESRLV");
@@ -301,9 +301,9 @@ G4double windowThickness = 0.3 * mm;
 //define window solid
 auto windowSolid = new G4Box(
     "SiPMWindow",
-    3.5 * mm,
+    2.0 * mm,
     windowThickness / 2.0,
-    3.5 * mm
+    2.0 * mm
 );
 
 //define window material
