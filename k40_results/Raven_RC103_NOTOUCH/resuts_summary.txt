@@ -1,27 +1,8 @@
-Full-energy events:
-Number: 18051
-Mean raw energy: 1460.4768265092364 keV
-Mean weighted energy: 73.24077956667024 keV
-Mean reconstructed energy: 1008.5724081063303 keV
-Mean optical weighting factor: 0.05014857904001754
-Minimum optical weighting factor: 0.03517076308908906
-Maximum optical weighting factor: 0.07270227854632684
-
 Weighted Uncalibrated K-40 peak fit:
 Centroid: 998.405890952403 keV
 Sigma: 16.679379300705225 keV
 Peak area: 10559.298958772244 counts
 Optical FWHM: 39.27693671597496 keV
-Optical FWHM: 3.933964840542734 %
-Unsmeared counts: 292238
-Smeared counts: 292150.74427816184
-
-Number of events: 100000000
-Minimum: 0.0
-Maximum: 2139.845798078432
-Mean: 1.710383535301206
-Non-zero events: 292238
-Unique values: 292239
 Highest bin: 232.91015625 keV
 Peak counts: 1339.0947173970821
 K-40 peak near 1460 keV: 1460.44921875 keV
@@ -36,17 +17,13 @@ Centroid: 1460.8386429509267 keV
 Sigma: 34.22650454321187 keV
 Peak area: 10565.545856116438 counts
 Optical FWHM: 80.59725896969816 keV
-Optical FWHM: 5.517191057247082 %
 
 Simulated K-40 peak efficiency: 0.00010565545856116437
-Standard deviation of simulated peak efficiency: 1.3808906777336474e-06
-Relative uncertainty of simulated peak efficiency: 0.05167996155638026
-Total uncertainty of simulated peak efficiency: 5.460270036662702e-06
+Monte Carlo uncertainty: +/- 1.3808906777336474e-06
+MC + 5% systematic relative uncertainty: +/- 5.167996155638026 %
+MC + systematic uncertainty: +/- 5.460270036662702e-06
 SpeFile: Reading file kcl_foreground.spe
 SpeFile: Reading file shielded_background.spe
-531951.5625
-81529.10938
-True
 
 Measured K-40 peak analysis:
 Centroid: 1461.1952619395024
@@ -64,4 +41,10 @@ Comparison of simulated and measured K-40 peak efficiency:
 Simulated efficiency: 0.00010565545856116437 +/- 5.460270036662702e-06
 Measured efficiency: 0.00010603562077837706 +/- 3.589958303463135e-06
 Difference (measured - simulated): 3.801622172126915e-07 +/- 6.534703474059126e-06
-Agreement: 0.058175894089429615 sigma
+Efficiency agreement: 0.058175894089429615 sigma
+
+Comparison of activity agreement:
+Reference activity (Bq): 3837.106899 +/- 8.1687222 Bq
+Calculated activity (Bq): 3850.913313607168 +/- 139.5139432009136 Bq
+Difference (calculated - reference): 13.806414607168335 +/- 139.75288322552962
+Activity agreement: 0.09879162625137328 sigma

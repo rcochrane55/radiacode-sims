@@ -52,8 +52,7 @@ interpolator = RegularGridInterpolator(
     fill_value=0
 )
 
-eta_center = interpolator([[0.0, 4.999, 0.5]])[0]
-#print("Interpolated center efficiency:", eta_center)
+eta_ref = interpolator([[0.0, 4.999, 0.5]])[0]
 
 flat_x = ak.to_numpy(ak.flatten(stepX))
 flat_y = ak.to_numpy(ak.flatten(stepY))
@@ -102,69 +101,77 @@ weighted_energy_np = ak.to_numpy(weighted_energy)
 
 full_energy = (raw_event_energy > 1.40) & (raw_event_energy < 1.52)
 
-print("\nFull-energy events:")
-print("Number:", np.sum(full_energy))
+#print("\nFull-energy events:")
+#print("Number:", np.sum(full_energy))
 
 if np.sum(full_energy) > 0:
     optical_factor = weighted_energy_np[full_energy] / raw_event_energy[full_energy]
-    reconstructed_full = weighted_energy_np[full_energy] / eta_center
+    reconstructed_full = weighted_energy_np[full_energy] / eta_ref
 
-    print("Mean raw energy:", np.mean(raw_event_energy[full_energy]) * 1000, "keV")
-    print("Mean weighted energy:", np.mean(weighted_energy_np[full_energy]) * 1000, "keV")
-    print("Mean reconstructed energy:", np.mean(reconstructed_full) * 1000, "keV")
-    print("Mean optical weighting factor:", np.mean(optical_factor))
-    print("Minimum optical weighting factor:", np.min(optical_factor))
-    print("Maximum optical weighting factor:", np.max(optical_factor))
+    #print("Mean raw energy:", np.mean(raw_event_energy[full_energy]) * 1000, "keV")
+    #print("Mean weighted energy:", np.mean(weighted_energy_np[full_energy]) * 1000, "keV")
+    #print("Mean reconstructed energy:", np.mean(reconstructed_full) * 1000, "keV")
+    #print("Mean optical weighting factor:", np.mean(optical_factor))
+    #print("Minimum optical weighting factor:", np.min(optical_factor))
+    #print("Maximum optical weighting factor:", np.max(optical_factor))
 
-reconstructed_energy = ak.to_numpy(weighted_energy / eta_center) * 1000
+reconstructed_energy = ak.to_numpy(weighted_energy / eta_ref) * 1000
 reconstructed_mean = np.mean(reconstructed_full) * 1000
 
 hist, edges = np.histogram(reconstructed_energy[reconstructed_energy > 0], bins=1024, range=(0,3000))
 centers = (edges[:-1] + edges[1:]) / 2
-plt.step(centers, hist, where="mid")
+""" plt.step(centers, hist, where="mid")
 plt.xlabel("Energy (keV)")
 plt.ylabel("Counts")
 plt.title("Uncalibrated Reconstructed Spectrum")
 plt.xlim(0, 3000)
-plt.show()
+plt.show() """
 
 #reconstructed_energy *= 1.56146314
 
 # Fit optical FWHM from uncalibrated, weighted, unsmeared spectrum
 unsmeared_energy = reconstructed_energy[reconstructed_energy > 0]
 
-unsmeared_hist, unsmeared_edges = np.histogram(
-    unsmeared_energy, bins=1024, range=(0, 3000)
-)
+unsmeared_hist, unsmeared_edges = np.histogram(unsmeared_energy, bins=1024, range=(0, 3000))
 
 unsmeared_centers = (unsmeared_edges[:-1] + unsmeared_edges[1:]) / 2
 bin_width = unsmeared_edges[1] - unsmeared_edges[0]
 
-bq_spec = bq.Spectrum.from_listmode(
-    listmode_data=unsmeared_energy,
-    bins=unsmeared_edges,
-    is_cal=True
-)
+bq_spec = bq.Spectrum.from_listmode(listmode_data=unsmeared_energy, bins=unsmeared_edges, is_cal=True)
 
 y = bq_spec.counts_vals
 y_unc = np.sqrt(np.maximum(y, 1))
 dx = np.full_like(bq_spec.bin_centers_kev, bin_width, dtype=float)
 
-model = (
-    bq.fitting.GaussModel(prefix="gauss0_") +
-    bq.fitting.LineModel(prefix="linear_")
-)
+model = (bq.fitting.GaussModel(prefix="gauss0_") + bq.fitting.LineModel(prefix="linear_"))
 
-fitter = bq.Fitter(
-    model,
-    x=bq_spec.bin_centers_kev,
-    y=y,
-    y_unc=y_unc,
-    dx=dx,
-    roi=(reconstructed_mean - 100, reconstructed_mean + 100)
-)
+fitter = bq.Fitter(model, x=bq_spec.bin_centers_kev, y=y, y_unc=y_unc, dx=dx, roi=(reconstructed_mean - 100, reconstructed_mean + 100))
 
 fitter.fit(backend="lmfit")
+
+fig1 = plt.figure(figsize=(12, 6))
+fig1.suptitle("Weighted Uncalibrated K-40 Spectrum", fontsize=10)
+fig1.text(0.5, 0.025, "Figure 1. The optically-weighted, uncalibrated, unbroadened spectrum is" \
+" shown in blue and the fitted peak is overlaid in orange.", ha='center', fontsize=10)
+fig1.subplots_adjust(left=0.08, right=0.97, bottom=0.15, top=0.95)
+
+x = bq_spec.bin_centers_kev
+
+plt.step(x, y, where="mid", label="Weighted uncalibrated spectrum")
+
+x_fit = np.linspace(fitter.x_roi[0], fitter.x_roi[-1], 1000)
+
+y_fit = fitter.eval(x_fit, **fitter.best_values) * bin_width
+
+plt.plot(x_fit, y_fit, label="Weighted uncalibrated K-40 fit")
+
+plt.xlabel("Energy (keV)")
+plt.ylabel("Counts")
+plt.yscale("log")
+plt.xlim(0, 3000)
+plt.legend()
+plt.show()
+
 centroid = fitter.param_val("gauss0_mu")
 sigma = fitter.param_val("gauss0_sigma")
 peak_area = fitter.param_val("gauss0_amp")
@@ -175,9 +182,14 @@ print("Centroid:", centroid, "keV")
 print("Sigma:", sigma, "keV")
 print("Peak area:", peak_area, "counts")
 print("Optical FWHM:", optical_fwhm, "keV")
-print("Optical FWHM:", 100 * optical_fwhm / centroid, "%")
+#print("Optical FWHM:", 100 * optical_fwhm / centroid, "%")
 
-fitter.custom_plot()
+fig2 = fitter.custom_plot()
+fig2.suptitle("Weighted Uncalibrated K-40 Peak Fit", fontsize=10)
+fig2.text(0.5, 0.015, "Figure 2: Fit statistics of the optically-weighted, uncalibrated, unbroadened K-40 peak. " \
+"The fitted centroid is {:.2f} keV, the fitted sigma is {:.2f} keV, "
+"the fitted FWHM is {:.2f} keV, and the fitted peak area is {:.2f} counts.".format(centroid, sigma, optical_fwhm, peak_area), ha='center', fontsize=10)
+fig2.subplots_adjust(bottom=0.3, top=0.85)
 plt.tight_layout()
 plt.show()
 
@@ -214,12 +226,7 @@ sigma_optical_bins = optical_fwhm_bins * fwhm_to_sigma
 sigma_target_bins = predicted_fwhm * fwhm_to_sigma
 
 # extra Gaussian broadening needed
-sigma_add_bins = np.sqrt(
-    np.maximum(
-        0,
-        sigma_target_bins**2 - sigma_optical_bins**2
-    )
-)
+sigma_add_bins = np.sqrt(np.maximum(0, sigma_target_bins**2 - sigma_optical_bins**2))
 
 response_matrix = np.zeros((n_bins, n_bins))
 
@@ -234,16 +241,16 @@ for i, (energy, sigma) in enumerate(zip(centers, sigma_add_bins)):
 
 hist = (response_matrix @ unsmeared_hist)
 
-print("Unsmeared counts:", np.sum(unsmeared_hist))
-print("Smeared counts:", np.sum(hist))
+#print("Unsmeared counts:", np.sum(unsmeared_hist))
+#print("Smeared counts:", np.sum(hist))
 
 
-print("\nNumber of events:", len(reconstructed_energy))
-print("Minimum:", np.min(reconstructed_energy))
-print("Maximum:", np.max(reconstructed_energy))
-print("Mean:", np.mean(reconstructed_energy))
-print("Non-zero events:", np.sum(reconstructed_energy > 0))
-print("Unique values:", len(np.unique(reconstructed_energy)))
+#print("\nNumber of events:", len(reconstructed_energy))
+#print("Minimum:", np.min(reconstructed_energy))
+#print("Maximum:", np.max(reconstructed_energy))
+#print("Mean:", np.mean(reconstructed_energy))
+#print("Non-zero events:", np.sum(reconstructed_energy > 0))
+#print("Unique values:", len(np.unique(reconstructed_energy)))
 
 centers = (edges[:-1] + edges[1:]) / 2
 
@@ -262,12 +269,12 @@ k40_peak_energy = roi_centers[roi_peak_index]
 print("K-40 peak near 1460 keV:", k40_peak_energy, "keV")
 print("K-40 peak counts:", roi_hist[roi_peak_index])
 
-plt.step(centers, hist, where="mid")
+""" plt.step(centers, hist, where="mid")
 plt.xlabel("Energy (keV)")
 plt.ylabel("Counts")
 plt.title("Weighted + Smeared Energy Spectrum")
 plt.xlim(0, 3000)
-plt.show()
+plt.show() """
 
 rng = np.random.default_rng(12345)
 
@@ -283,21 +290,11 @@ for _ in range(1000):
     bootstrap_unsmeared = rng.multinomial(N, p)
 
     # Deterministic detector convolution
-    bootstrap_smeared = (
-        response_matrix @ bootstrap_unsmeared
-    )
+    bootstrap_smeared = (response_matrix @ bootstrap_unsmeared)
 
     y = bootstrap_smeared
 
-    fitter = bq.Fitter(
-        model,
-        x=centers,
-        y=y,
-        y_unc=np.ones_like(y),  # only used to obtain fit;
-                                # don't trust lmfit's covariance here
-        dx=dx,
-        roi=(1360.8, 1560.8)
-    )
+    fitter = bq.Fitter(model, x=centers, y=y, y_unc=np.ones_like(y), dx=dx,roi=(1360.8, 1560.8))
 
     fitter.fit(backend="lmfit")
 
@@ -313,31 +310,47 @@ print(
     f" +/- {np.std(areas, ddof=1):.1f}"
 )
 
-print(
-    "68% CI:",
-    np.percentile(areas, [16, 84])
-)
+print("68% CI:", np.percentile(areas, [16, 84]))
 
 y = hist
 y_unc = np.sqrt(np.maximum(y, 1))
 dx = np.full_like(centers, bin_width, dtype=float)
 
-model = (
-    bq.fitting.GaussModel(prefix="gauss0_") +
-    bq.fitting.LineModel(prefix="linear_")
-)
+model = (bq.fitting.GaussModel(prefix="gauss0_") + bq.fitting.LineModel(prefix="linear_"))
 
-fitter = bq.Fitter(
-    model,
-    x=bq_spec.bin_centers_kev,
-    y=y,
-    y_unc=y_unc,
-    dx=dx,
-    roi=(1360.8, 1560.8)
-)
+fitter = bq.Fitter(model, x=bq_spec.bin_centers_kev, y=y, y_unc=y_unc, dx=dx, roi=(1360.8, 1560.8))
 fitter.fit(backend="lmfit", guess={
     "gauss0_mu": 1460.8
 })
+
+x = bq_spec.bin_centers_kev
+
+y_plot = y.copy()
+
+#clean up artifacts of the deterministic convolution
+plot_threshold = 1.0
+y_plot[y_plot < plot_threshold] = np.nan
+
+fig3 = plt.figure(figsize=(12, 6))
+fig3.suptitle("Weighted + Calibrated + Smeared K-40 Spectrum", fontsize=10)
+fig3.text(0.5, 0.025, "Figure 3. The weighted, calibrated, and broadened spectrum is shown in blue and the fitted peak is overlaid in orange.", ha='center', fontsize=10)
+fig3.subplots_adjust(left=0.08, right=0.97, bottom=0.15, top=0.95)
+
+plt.step(x, y_plot, where="mid", label="Weighted + calibrated + smeared spectrum")
+
+x_fit = np.linspace(fitter.x_roi[0], fitter.x_roi[-1], 1000)
+
+y_fit = fitter.eval(x_fit, **fitter.best_values) * bin_width
+
+plt.plot(x_fit, y_fit, label="Weighted + calibrated + smeared K-40 fit")
+
+plt.xlabel("Energy (keV)")
+plt.ylabel("Counts")
+plt.yscale("log")
+plt.xlim(0, 3000)
+plt.legend()
+plt.show()
+
 centroid = fitter.param_val("gauss0_mu")
 sigma = fitter.param_val("gauss0_sigma")
 peak_area = fitter.param_val("gauss0_amp")
@@ -347,16 +360,20 @@ print("Centroid:", centroid, "keV")
 print("Sigma:", sigma, "keV")
 print("Peak area:", peak_area, "counts")
 print("Optical FWHM:", optical_fwhm, "keV")
-print("Optical FWHM:", 100 * optical_fwhm / centroid, "%")
 eff_sim =peak_area/100000000
 sigma_eff_sim = np.std(areas, ddof=1)/100000000
-sigma_eff_sim_rel = np.sqrt((sigma_eff_sim/eff_sim)**2 + (5)**2)
+sigma_eff_sim_rel = np.sqrt((sigma_eff_sim/eff_sim)**2 + (0.05)**2)
 sigma_sim_total = sigma_eff_sim_rel * eff_sim
-print("Simulated K-40 peak efficiency:", eff_sim)
-print("Standard deviation of simulated peak efficiency:", sigma_eff_sim)
-print("Relative uncertainty of simulated peak efficiency:", sigma_eff_sim_rel)
-print("Total uncertainty of simulated peak efficiency:", sigma_sim_total)
-fitter.custom_plot()
+print("\nSimulated K-40 peak efficiency:", eff_sim)
+print("Monte Carlo uncertainty: +/-", sigma_eff_sim)
+print("MC + 5% systematic relative uncertainty: +/-", sigma_eff_sim_rel * 100, "%")
+print("MC + systematic uncertainty: +/-", sigma_sim_total)
+fig4 = fitter.custom_plot()
+fig4.suptitle("Weighted + Calibrated + Smeared K-40 Peak Fit", fontsize=10)
+fig4.text(0.5, 0.015, "Figure 4: Fit statistics of the optically-weighted, calibrated and broadened K-40 peak. " \
+"The fitted centroid is {:.2f} keV, the fitted sigma is {:.2f} keV, "
+"the fitted FWHM is {:.2f} keV, and the fitted peak area is {:.2f} counts.".format(centroid, sigma, optical_fwhm, peak_area), ha='center', fontsize=10)
+fig4.subplots_adjust(bottom=0.3, top=0.85)
 plt.tight_layout()
 plt.show()
 
@@ -371,10 +388,10 @@ livetime_bg = shielded_background.livetime
 counts_fg = kcl_foreground.counts_vals
 livetime_fg = kcl_foreground.livetime
 
-print(livetime_fg)
-print(livetime_bg)
+#print(livetime_fg)
+#rint(livetime_bg)
 
-print(np.allclose(kcl_foreground.bin_edges_kev, shielded_background.bin_edges_kev))
+#print(np.allclose(kcl_foreground.bin_edges_kev, shielded_background.bin_edges_kev))
 
 alpha = livetime_fg / livetime_bg
 
@@ -389,10 +406,7 @@ y_unc = net_spectrum.counts_uncs
 x = net_spectrum.bin_centers_kev
 dx = net_spectrum.bin_widths_kev
 
-model = (
-    bq.fitting.GaussModel(prefix="gauss0_") +
-    bq.fitting.LineModel(prefix="linear_")
-)
+model = (bq.fitting.GaussModel(prefix="gauss0_") + bq.fitting.LineModel(prefix="linear_"))
 
 fitter = bq.Fitter(
     model,
@@ -408,6 +422,26 @@ fitter.fit(backend="lmfit", guess={
     "gauss0_sigma": 35.0,
     "gauss0_amp": 21800.0
 })
+
+fig5 =plt.figure(figsize=(12, 6))
+fig5.suptitle("Measured K-40 Spectrum", fontsize=10)
+fig5.text(0.5, 0.025, "Figure 5. The measured K-40 spectrum is shown in blue and the fitted peak is overlaid in orange.", ha='center', fontsize=10)
+fig5.subplots_adjust(left=0.08, right=0.97, bottom=0.15, top=0.95)
+
+plt.step(x, y, where="mid", label="Measured K-40 spectrum")
+
+x_fit = np.linspace(fitter.x_roi[0], fitter.x_roi[-1], 1000)
+
+y_fit = fitter.eval(x_fit, **fitter.best_values) * bin_width
+
+plt.plot(x_fit, y_fit, label="Measured K-40 fit")
+
+plt.xlabel("Energy (keV)")
+plt.ylabel("Counts")
+plt.yscale("log")
+plt.xlim(0, 3000)
+plt.legend()
+plt.show()
 
 peak_counts = fitter.param_val("gauss0_amp")
 centroid = fitter.param_val("gauss0_mu")
@@ -434,8 +468,6 @@ peak_eff_unc = peak_eff * peak_eff_rel_unc
 activity_calculated = peak_cps/(eff_sim * k40_yield)
 activity_calculated_unc = activity_calculated * np.sqrt((peak_cps_unc/peak_cps)**2 + (sigma_eff_sim/eff_sim)**2 + (k40_yield_unc/k40_yield)**2)
 
-
-
 print("\nMeasured K-40 peak analysis:")
 print("Centroid:", centroid)
 print("Sigma:", sigma)
@@ -454,8 +486,21 @@ print("Measured efficiency:", peak_eff, "+/-", peak_eff_unc)
 delta_eff = peak_eff - eff_sim
 delta_eff_unc = np.sqrt(sigma_sim_total**2 + peak_eff_unc**2)
 print("Difference (measured - simulated):", delta_eff, "+/-", delta_eff_unc)
-print("Agreement:", delta_eff/delta_eff_unc, "sigma")
+print("Efficiency agreement:", delta_eff/delta_eff_unc, "sigma")
 
-fitter.custom_plot()
-plt.tight_layout()
+print("\nComparison of activity agreement:")
+print("Reference activity (Bq):", activity_ref, "+/-", activity_ref_unc, "Bq")
+print("Calculated activity (Bq):", activity_calculated, "+/-", activity_calculated_unc, "Bq")
+delta_activity = activity_calculated - activity_ref
+delta_activity_unc = np.sqrt(activity_calculated_unc**2 + activity_ref_unc**2)
+print("Difference (calculated - reference):", delta_activity, "+/-", delta_activity_unc)
+print("Activity agreement:", delta_activity/delta_activity_unc, "sigma")
+
+fig6 = fitter.custom_plot()
+fig6.suptitle("Measured K-40 Peak Fit", fontsize=10)
+fig6.text(0.5, 0.015, "Figure 6: Fit statistics of the measured K-40 peak. " \
+"The fitted centroid is {:.2f} keV, the fitted sigma is {:.2f} keV, "
+"the fitted FWHM is {:.2f} keV, and the fitted peak area is {:.2f} counts.".format(centroid, sigma, fwhm, peak_counts), ha='center', fontsize=10)
+#fig6.subplots_adjust(bottom=0.15, top=0.95)
+plt.tight_layout(rect=[0.0, 0.04, 1.0, 0.99])
 plt.show()
