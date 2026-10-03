@@ -52,7 +52,8 @@ interpolator = RegularGridInterpolator(
     fill_value=0
 )
 
-eta_ref = interpolator([[0.0, 4.999, 0.5]])[0]
+eta_center = interpolator([[0.0, 4.999, 0.5]])[0]
+#print("Interpolated center efficiency:", eta_center)
 
 flat_x = ak.to_numpy(ak.flatten(stepX))
 flat_y = ak.to_numpy(ak.flatten(stepY))
@@ -106,7 +107,7 @@ print("Number:", np.sum(full_energy))
 
 if np.sum(full_energy) > 0:
     optical_factor = weighted_energy_np[full_energy] / raw_event_energy[full_energy]
-    reconstructed_full = weighted_energy_np[full_energy] / eta_ref
+    reconstructed_full = weighted_energy_np[full_energy] / eta_center
 
     print("Mean raw energy:", np.mean(raw_event_energy[full_energy]) * 1000, "keV")
     print("Mean weighted energy:", np.mean(weighted_energy_np[full_energy]) * 1000, "keV")
@@ -115,7 +116,7 @@ if np.sum(full_energy) > 0:
     print("Minimum optical weighting factor:", np.min(optical_factor))
     print("Maximum optical weighting factor:", np.max(optical_factor))
 
-reconstructed_energy = ak.to_numpy(weighted_energy / eta_ref) * 1000
+reconstructed_energy = ak.to_numpy(weighted_energy / eta_center) * 1000
 reconstructed_mean = np.mean(reconstructed_full) * 1000
 
 hist, edges = np.histogram(reconstructed_energy[reconstructed_energy > 0], bins=1024, range=(0,3000))
@@ -349,9 +350,9 @@ print("Optical FWHM:", optical_fwhm, "keV")
 print("Optical FWHM:", 100 * optical_fwhm / centroid, "%")
 eff_sim =peak_area/100000000
 sigma_eff_sim = np.std(areas, ddof=1)/100000000
-sigma_eff_sim_rel = np.sqrt((sigma_eff_sim/eff_sim)**2 + (0.05)**2)
+sigma_eff_sim_rel = np.sqrt((sigma_eff_sim/eff_sim)**2 + (5)**2)
 sigma_sim_total = sigma_eff_sim_rel * eff_sim
-print("\nSimulated K-40 peak efficiency:", eff_sim)
+print("Simulated K-40 peak efficiency:", eff_sim)
 print("Standard deviation of simulated peak efficiency:", sigma_eff_sim)
 print("Relative uncertainty of simulated peak efficiency:", sigma_eff_sim_rel)
 print("Total uncertainty of simulated peak efficiency:", sigma_sim_total)
