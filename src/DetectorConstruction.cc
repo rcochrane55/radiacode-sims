@@ -42,6 +42,7 @@
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4SubtractionSolid.hh"
+#include "G4RotationMatrix.hh"
 
 
 DetectorConstruction::DetectorConstruction()
@@ -97,26 +98,135 @@ G4Element* elCl = new G4Element("Chloride", "Cl", 17, 35.453*g/mole);
 KCl->AddElement(elK, nAtoms=1);
 KCl->AddElement(elCl, nAtoms=1);
 
-auto mesh = CADMesh::TessellatedMesh::FromSTL("D:/Geant4/radiacode-sims/marinelli_volume.stl");
-auto solid = mesh->GetSolid();
-auto marinelliLV = new G4LogicalVolume(solid, KCl, "marinelliLV");
+G4Element *elNb = new G4Element("Niobium", "Nb", 41, 92.906*g/mole);
+G4Element *elO = new G4Element("Oxygen", "O", 8, 15.999*g/mole);
+G4Material *Nb2O5 = new G4Material("Niobium Pentoxide, Nb2O5", 4.6*g/cm3, 2);
+Nb2O5->AddElement(elNb, 2);
+Nb2O5->AddElement(elO, 5);
 
-G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
+G4Element *elTh = new G4Element("Thorium", "Th", 90, 232.038*g/mole);
+G4Material *ThO2 = new G4Material("Thorium Dioxide, ThO2", 10.0*g/cm3, 2);
+ThO2->AddElement(elTh, 1);
+ThO2->AddElement(elO, 2);
 
-new G4PVPlacement(0, marinelliPos, marinelliLV, "marinelli", logicWorld, false, 0, checkOverlaps); 
+G4Element* elTa = new G4Element("Tantalum", "Ta", 73, 180.94788*g/mole);
+G4Material* Ta2O5 = new G4Material("Tantalum Pentoxide, Ta2O5", 8.2*g/cm3, 2);
+Ta2O5->AddElement(elTa, 2);
+Ta2O5->AddElement(elO, 5);
+
+G4Element* elSi = new G4Element("Silicon", "Si", 14, 28.0855*g/mole);
+G4Material* SiO2 = new G4Material("Silicon Dioxide, SiO2", 2.65*g/cm3, 2);
+SiO2->AddElement(elSi, 1);
+SiO2->AddElement(elO, 2);
+
+G4Element* elCa = new G4Element("Calcium", "Ca", 20, 40.078*g/mole);
+G4Material* CaO = new G4Material("Calcium Oxide, CaO", 3.34*g/cm3, 2);
+CaO->AddElement(elCa, 1);
+CaO->AddElement(elO, 1);
+
+G4Element* elZr = new G4Element("Zirconium", "Zr", 40, 91.224*g/mole);
+G4Material* ZrO2 = new G4Material("Zirconium Dioxide, ZrO2", 5.68*g/cm3, 2);
+ZrO2->AddElement(elZr, 1);
+ZrO2->AddElement(elO, 2);
+
+G4Element* elMn = new G4Element("Manganese", "Mn", 25, 54.938*g/mole);
+G4Material* MnO = new G4Material("Manganese Oxide, MnO", 5.03*g/cm3, 2);
+MnO->AddElement(elMn, 1);
+MnO->AddElement(elO, 1);
+
+G4Element* elPb = new G4Element("Lead", "Pb", 82, 207.2*g/mole);
+G4Material* PbO = new G4Material("Lead Oxide, PbO", 9.53*g/cm3, 2);
+PbO->AddElement(elPb, 1);
+PbO->AddElement(elO, 1);
+
+G4Element* elMg = new G4Element("Magnesium", "Mg", 12, 24.305*g/mole);
+G4Material* MgO = new G4Material("Magnesium Oxide, MgO", 3.55*g/cm3, 2);
+MgO->AddElement(elMg, 1);
+MgO->AddElement(elO, 1);
+
+G4Element* elSn = new G4Element("Tin", "Sn", 50, 118.71*g/mole);
+G4Material* SnO2 = new G4Material("Tin Oxide, SnO2", 6.95*g/cm3, 2);
+SnO2->AddElement(elSn, 1);
+SnO2->AddElement(elO, 2);
+
+G4Element* elAl = new G4Element("Aluminum", "Al", 13, 26.9815*g/mole);
+G4Material* Al2O3 = new G4Material("Aluminum Oxide, Al2O3", 3.95*g/cm3, 2);
+Al2O3->AddElement(elAl, 2);
+Al2O3->AddElement(elO, 3);
+
+G4Element* elCe = new G4Element("Cerium", "Ce", 58, 140.116*g/mole);
+G4Material* Ce2O3 = new G4Material("Cerium Oxide, Ce2O3", 7.65*g/cm3, 2);
+Ce2O3->AddElement(elCe, 2);
+Ce2O3->AddElement(elO, 3);
+
+G4Element* elY = new G4Element("Yttrium", "Y", 39, 88.90584*g/mole);
+G4Material* Y2O3 = new G4Material("Yttrium Oxide, Y2O3", 5.01*g/cm3, 2);
+Y2O3->AddElement(elY, 2);
+Y2O3->AddElement(elO, 3);
+
+G4Element* elFe = new G4Element("Iron", "Fe", 26, 55.845*g/mole);
+G4Material* Fe2O3 = new G4Material("Iron(III) Oxide, Fe2O3", 5.24*g/cm3, 2);
+Fe2O3->AddElement(elFe, 2);
+Fe2O3->AddElement(elO, 3);
+G4Material* FeO = new G4Material("Iron(II) Oxide, FeO", 5.745*g/cm3, 2);
+FeO->AddElement(elFe, 1);
+FeO->AddElement(elO, 1);
+
+G4Element* Ti = nist->FindOrBuildElement("Ti");
+G4Material* TiO2 = new G4Material("TiO2", 4.23*g/cm3, 2);
+TiO2->AddElement(Ti, 1);
+TiO2->AddElement(elO, 2);
+
+G4Material* euxenite = new G4Material("Euxenite", 5.16*g/cm3, 16);
+euxenite->AddMaterial(Nb2O5, 0.4386);
+euxenite->AddMaterial(ThO2, 0.0495);
+euxenite->AddMaterial(Ta2O5, 0.0384);
+euxenite->AddMaterial(SiO2, 0.0007);
+euxenite->AddMaterial(TiO2, 0.1639);
+euxenite->AddMaterial(ZrO2, 0.0004);
+euxenite->AddMaterial(SnO2, 0.0012);
+euxenite->AddMaterial(Al2O3, 0.0013);
+euxenite->AddMaterial(Ce2O3, 0.0434);
+euxenite->AddMaterial(Y2O3, 0.1822);
+euxenite->AddMaterial(Fe2O3, 0.0132);
+euxenite->AddMaterial(FeO, 0.0077);
+euxenite->AddMaterial(MnO, 0.0059);
+euxenite->AddMaterial(PbO, 0.0037);
+euxenite->AddMaterial(MgO, 0.0013);
+euxenite->AddMaterial(CaO, 0.0486);
+
+G4double mineralThickness = 5.92 * mm;
+G4double mineralDiameter = 31.50 * mm;
+auto mineralRotation = new G4RotationMatrix();
+mineralRotation->rotateX(90.0 * deg);
+
+auto mineralSolid = new G4Tubs(
+    "EuxeniteDisk",
+    0.0,
+    mineralDiameter / 2,
+    mineralThickness / 2,
+    0.0 * deg,
+    360.0 * deg
+);
+auto mineralLV = new G4LogicalVolume(mineralSolid, euxenite, "mineralLV");
+
+G4ThreeVector mineralPos = G4ThreeVector(0*cm, -9.5*cm, 0*cm);
+
+new G4PVPlacement(mineralRotation, mineralPos, mineralLV, "mineralSource", logicWorld, false, 0, checkOverlaps);
+
+// auto mesh = CADMesh::TessellatedMesh::FromSTL("D:/Geant4/radiacode-sims/marinelli_volume.stl");
+// auto solid = mesh->GetSolid();
+// auto marinelliLV = new G4LogicalVolume(solid, KCl, "marinelliLV");
+
+// G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
+
+// new G4PVPlacement(0, marinelliPos, marinelliLV, "marinelli", logicWorld, false, 0, checkOverlaps); 
 
 // CsI scint assembly
 
   G4double scintLength = 1.*cm ;
   G4double scintWidth = 1.*cm ;
   G4double scintHeight = 1.*cm ;
-
-  G4Element* Ti = nist->FindOrBuildElement("Ti");
-  G4Element* O = nist->FindOrBuildElement("O");
-  G4Material* TiO2 = new G4Material("TiO2", 4.23*g/cm3, 2);
-
-  TiO2->AddElement(Ti, 1);
-  TiO2->AddElement(O, 2);
 
   G4double crystalSize = 1.0*cm;
   G4double siPMSide = 0.6*cm;
@@ -165,7 +275,7 @@ new G4PVPlacement(0, marinelliPos, marinelliLV, "marinelli", logicWorld, false, 
   SiPMLV->SetVisAttributes(green);
 
   G4Material* scintMat = nist->FindOrBuildMaterial("G4_CESIUM_IODIDE");
-  G4ThreeVector scintPos = G4ThreeVector(0, 0, 3*cm);
+  G4ThreeVector scintPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
 
   G4Box * scintSolid = new G4Box(
       "scint",

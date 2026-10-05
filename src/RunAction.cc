@@ -95,12 +95,9 @@ void RunAction::BeginOfRunAction(const G4Run*)
 
   // Get analysis manager
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-  G4String fileName="rootOutput";
+  // G4String fileName="rootOutput";
   
-  if(!analysisManager->GetFileName().empty())
-    fileName = analysisManager->GetFileName();
-  
-  analysisManager->OpenFile(fileName);
+  analysisManager->OpenFile();
 
 }
 

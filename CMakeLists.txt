@@ -49,6 +49,7 @@ set(marinelli_SCRIPTS
   optical_weighting.py
   optical_response_map.csv
   kcl_measurement.csv
+  generate_energyscanner.py
   )
 
 foreach(_script ${marinelli_SCRIPTS})
