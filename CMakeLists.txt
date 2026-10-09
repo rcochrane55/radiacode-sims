@@ -50,6 +50,7 @@ set(marinelli_SCRIPTS
   optical_response_map.csv
   kcl_measurement.csv
   generate_energyscanner.py
+  euxenite_analysis.py
   )
 
 foreach(_script ${marinelli_SCRIPTS})
