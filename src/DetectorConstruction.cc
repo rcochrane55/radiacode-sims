@@ -103,9 +103,9 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
 // CsI scint assembly
 
   G4cout << "Defining scint dimensions" << G4endl;
-  G4double scintLength = 1.*cm ;
-  G4double scintWidth = 1.*cm ;
-  G4double scintHeight = 1.*cm ;
+  G4double scintLength = 1.4*cm ;
+  G4double scintWidth = 1.4*cm ;
+  G4double scintHeight = 1.4*cm ;
   G4cout << "scint dimensions defined" << G4endl;
 
   G4cout << "defining TiO2" << G4endl;
@@ -288,7 +288,7 @@ G4cout << "Defining grease dimensions" << G4endl;
   G4cout << "defining ESR film solid and LV" << G4endl;
   G4double esrThickness = 0.065 * mm;
 
-  auto ESRFull = new G4Box("ESRFull", 5.0 * mm, esrThickness/2.0, 5.0 * mm);
+  auto ESRFull = new G4Box("ESRFull", crystalSize/2, esrThickness/2.0, crystalSize/2);
   auto SiPMCutout = new G4Box("SiPMCutout", 3.5 * mm, esrThickness, 3.5 * mm);
   G4ThreeVector cutoutOffset(0.0 * mm, 0.0 * mm, 0.5 * mm);
   auto ESRSolid = new G4SubtractionSolid("ESRSolid", ESRFull, SiPMCutout, nullptr, cutoutOffset);
