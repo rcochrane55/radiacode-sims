@@ -117,7 +117,7 @@ G4ThreeVector marinelliPos = G4ThreeVector(0*cm, 0*cm, 0*cm);
   TiO2->AddElement(Ti, 1);
   TiO2->AddElement(O, 2);
 
-  G4double crystalSize = 1.0*cm;
+  G4double crystalSize = 1.4*cm;
   G4double siPMPackageSide = 0.7 * cm;
   G4double siPMSide = 0.6*cm;
   G4double siPMThickness = 0.03*cm;
