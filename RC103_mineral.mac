@@ -1,0 +1,22 @@
+# Select physical source geometry
+/geometry/source/type disk
+
+# Disk dimensions
+/geometry/source/disk/diameter 31.50 mm
+/geometry/source/disk/thickness 5.92 mm
+
+# Disk position and orientation
+/geometry/source/disk/position 0 -50 0 mm
+/geometry/source/disk/rotation 90 0 0 deg
+
+# Crystal dimensions and position
+/geometry/detector/crystal/dimensions 10 10 10 mm
+/geometry/detector/crystal/position 0 0 0 mm
+
+# SiPM
+/geometry/detector/sipm/side 6 mm
+/geometry/detector/sipm/thickness 0.4 mm
+
+# Reflector and cladding
+/geometry/detector/reflector/thickness 0.4 mm
+/geometry/detector/cladding/thickness 1.6 mm

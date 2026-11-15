@@ -1,0 +1,18 @@
+# Select physical source geometry
+/geometry/source/type marinelli
+
+# Marinelli STL and position
+/geometry/source/marinelli/meshfile D:/Geant4/radiacode-sims/marinelli_volume.stl
+/geometry/source/marinelli/position 0 0 0 mm
+
+# Crystal dimensions and position
+/geometry/detector/crystal/dimensions 10 10 10 mm
+/geometry/detector/crystal/position 0 0 30 mm
+
+# SiPM
+/geometry/detector/sipm/side 6 mm
+/geometry/detector/sipm/thickness 0.4 mm
+
+# Reflector and cladding
+/geometry/detector/reflector/thickness 0.4 mm
+/geometry/detector/cladding/thickness 1.6 mm

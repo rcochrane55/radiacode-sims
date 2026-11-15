@@ -31,10 +31,20 @@
 #define DetectorConstruction_h 1
 
 #include "G4VUserDetectorConstruction.hh"
+#include "G4ThreeVector.hh"
 #include "globals.hh"
 
 class G4VPhysicalVolume;
 class G4LogicalVolume;
+class DetectorConstructionMessenger;
+
+// two types of source geometries
+
+enum class SourceGeometry
+{
+  Marinelli,
+  Disk
+};
 
 /// Detector construction class to define materials and geometry.
 
@@ -46,13 +56,92 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
     virtual G4VPhysicalVolume* Construct();
     
-    G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
+    G4LogicalVolume* GetScoringVolume() const 
+    { 
+        return fScoringVolume; 
+    }
 
-  protected:
+    //detector config setters
+    void SetCrystalDimensions(const G4ThreeVector& dimensions);
+    void SetCrystalPosition(const G4ThreeVector& position);
+
+    void SetSiPMSide(G4double side);
+    void SetSiPMThickness(G4double thickness);
+
+    void SetReflectorThickness(G4double thickness);
+    void SetCladdingThickness(G4double thickness);
+
+    // source config setters
+    void SetMarinelliMeshFile(const G4String& filename);
+    void SetMarinelliPosition(const G4ThreeVector& position);
+    
+    void SetDiskDiameter(G4double diameter);
+    void SetDiskThickness(G4double thickness);
+    void SetDiskPosition(const G4ThreeVector& position);
+    void SetDiskRotation(const G4ThreeVector& rotation);
+
+    void SetSourceType(SourceGeometry geometry);
+
+  private:
+    // params describing detector
+    struct DetectorConfig
+    {
+      G4double scintWidth;
+      G4double scintHeight;
+      G4double scintLength;
+
+      G4ThreeVector scintPosition;
+
+      G4double SiPMSide;
+      G4double SiPMThickness;
+
+      G4double reflectorThickness;
+      G4double claddingThickness;
+    };
+
+    struct SourceConfig
+    {
+      SourceGeometry geometry;
+
+      G4String marinelliMeshFile;
+      G4ThreeVector marinelliPosition;
+
+      G4double diskDiameter;
+      G4double diskThickness;
+
+      G4ThreeVector diskPosition;
+      G4ThreeVector diskRotation;
+    };
+
+    //material construction
+    void DefineMaterials();
+
+    //geometry construction
+    void ConstructDetector(
+        G4LogicalVolume* logicWorld,
+        G4bool checkOverlaps
+      );
+
+    void ConstructSource(
+        G4LogicalVolume* logicWorld,
+        G4bool checkOverlaps
+      );
+
+    void ConstructMarinelliSource(
+        G4LogicalVolume* logicWorld,
+        G4bool checkOverlaps
+      );
+
+    void ConstructDiskSource(
+        G4LogicalVolume* logicWorld,
+        G4bool checkOverlaps
+      );
+
+    DetectorConfig fDetectorConfig;
+    SourceConfig fSourceConfig;
     G4LogicalVolume*  fScoringVolume;
+    DetectorConstructionMessenger* fMessenger;
 };
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
 

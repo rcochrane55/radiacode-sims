@@ -47,8 +47,14 @@ set(marinelli_SCRIPTS
   vis.mac
   run.mac
   optical_weighting.py
+  fit_fwhm.py
+  generate_energyscanner.py
   optical_response_map.csv
   kcl_measurement.csv
+  RC103_marinelli.mac
+  RC103_mineral.mac
+  run_RC103_marinelli.mac
+  marinelli_volume.stl
   )
 
 foreach(_script ${marinelli_SCRIPTS})

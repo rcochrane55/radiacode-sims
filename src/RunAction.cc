@@ -122,27 +122,38 @@ void RunAction::ClearSteps()
 
 void RunAction::EndOfRunAction(const G4Run* run)
 {
+  G4cout << "CHECK 1: Entered EndOfRunAction" << G4endl;
+
   G4int nofEvents = run->GetNumberOfEvent();
+  G4cout << "CHECK 2: Events = " << nofEvents << G4endl;
   if (nofEvents == 0) return;
 
   // Merge accumulables 
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
   accumulableManager->Merge();
+  G4cout << "CHECK 3: Accumulables merged" << G4endl;
 
   // Compute dose = total energy deposit in a run and its variance
   //
-  G4double edep  = fEdep.GetValue();
+  /* G4double edep  = fEdep.GetValue();
   G4double edep2 = fEdep2.GetValue();
   
   G4double rms = edep2 - edep*edep/nofEvents;
   if (rms > 0.) rms = std::sqrt(rms); else rms = 0.;  
+ */
+/*   const DetectorConstruction* detectorConstruction =
+    static_cast<const DetectorConstruction*>(
+        G4RunManager::GetRunManager()->GetUserDetectorConstruction());
 
-  const DetectorConstruction* detectorConstruction
-   = static_cast<const DetectorConstruction*>
-     (G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-  G4double mass = detectorConstruction->GetScoringVolume()->GetMass();
-  G4double dose = edep/mass;
-  G4double rmsDose = rms/mass;
+  G4cout << "CHECK 3a: Detector construction = "
+        << detectorConstruction << G4endl;
+
+  auto scoringVolume = detectorConstruction->GetScoringVolume();
+
+  G4cout << "CHECK 3b: Scoring volume = "
+        << scoringVolume << G4endl; */
+
+  // G4double mass = scoringVolume->GetMass();
 
   // Run conditions
   //  note: There is no primary generator action object for "master"
@@ -161,7 +172,8 @@ void RunAction::EndOfRunAction(const G4Run* run)
   }
         
   // Print
-  //  
+  //
+  G4cout << "CHECK 5: Reached run summary" << G4endl;  
   if (IsMaster()) {
     G4cout
      << G4endl
@@ -177,9 +189,9 @@ void RunAction::EndOfRunAction(const G4Run* run)
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   // save histograms
+  G4cout << "WRITING ROOT FILE" << G4endl;
   analysisManager->Write();
   analysisManager->CloseFile();
-
 
 }
 

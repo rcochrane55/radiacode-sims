@@ -1,3 +1,5 @@
+/control/execute RC103_marinelli.mac
+
 /control/verbose 2
 /control/saveHistory
 /run/verbose 2
