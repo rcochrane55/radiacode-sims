@@ -9,7 +9,7 @@ from scipy.interpolate import RegularGridInterpolator
 from scipy.special import ndtr
 import pandas as pd
 
-file = uproot.open("rootOutput.root")
+file = uproot.open("D:/Geant4/radiacode-sims-build/Release/rootOutput.root")
 tree = file["t"]
 
 raw = tree["RawEdep"].array(library="np") * 1000
