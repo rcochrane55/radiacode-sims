@@ -1,0 +1,18 @@
+/control/execute RC102_marinelli.mac
+
+/run/numberOfThreads 16
+/run/initialize
+
+/gps/particle gamma
+/gps/energy 1460.822 keV
+/gps/ang/type iso
+
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/radius 3.4 cm
+/gps/pos/halfz 34 mm
+/gps/pos/centre 0. 0. 0 mm
+/gps/pos/confine marinelli
+
+/analysis/setFileName rootOutput.root
+/run/beamOn 100000000
