@@ -93,7 +93,7 @@ DetectorConstructionMessenger::DetectorConstructionMessenger(DetectorConstructio
     fSourceTypeCmd = new G4UIcmdWithAString("/geometry/source/type", this);
     fSourceTypeCmd->SetGuidance("Set source type: 'marinelli' or 'disk'.");
     fSourceTypeCmd->SetParameterName("type", false);
-    fSourceTypeCmd->SetCandidates("marinelli disk");
+    fSourceTypeCmd->SetCandidates("Marinelli Disk");
     fSourceTypeCmd->AvailableForStates(G4State_PreInit);
 
     //marinelli commands

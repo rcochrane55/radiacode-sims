@@ -1,5 +1,5 @@
 # Select physical source geometry
-/geometry/source/type marinelli
+/geometry/source/type Marinelli
 
 # Marinelli STL and position
 /geometry/source/marinelli/meshfile D:/Geant4/radiacode-sims/marinelli_volume.stl
